@@ -276,10 +276,6 @@ function handleChangeArrayIIFE(ast, return_array_function_name) {
 }
 
 function restoreCallExpression(ast, decrypt_string_function_name, code_str1, code_str2, code_str3) {
-    eval(code_str1);
-    eval(code_str2);
-    eval(code_str3);
-
     const caller_callee_map = new Map();
     const visitor1 = {
         VariableDeclarator(path) {
@@ -301,6 +297,9 @@ function restoreCallExpression(ast, decrypt_string_function_name, code_str1, cod
     };
     traverse(ast, visitor1);
 
+    eval(code_str1);
+    eval(code_str2);
+
     const decrypt_string_function_alias = [decrypt_string_function_name];
     let current_alias = [decrypt_string_function_name];
     while (current_alias.length > 0) {
@@ -316,16 +315,14 @@ function restoreCallExpression(ast, decrypt_string_function_name, code_str1, cod
         current_alias = next_alias;
     }
 
-    function evalAndReplace(path) {
-        const value = eval(path.toString());
-        const node = types.valueToNode(value);
-        path.replaceInline(node);
-    }
+    eval(code_str3);
 
     const visitor2 = {
         CallExpression(path) {
             if (decrypt_string_function_alias.includes(path.node.callee.name)) {
-                evalAndReplace(path);
+                const value = eval(path.toString());
+                const node = types.valueToNode(value);
+                path.replaceInline(node);
             }
         }
     };
@@ -349,36 +346,28 @@ function restoreMemberExpression(ast) {
     };
     traverse(ast, visitor1);
 
-    function restoreString(path) {
-        const value = eval(path.toString());
-        const node = types.valueToNode(value);
-        path.replaceInline(node);
-    }
-
-    function restoreExpression(path) {
-        const { info_object_properties } = info_object_map.get(path.node.callee.object.name);
-        const property = info_object_properties.find(prop => prop.key.value === path.node.callee.property.value);
-        const expression = property.value.body.body[0].argument;
-        let new_expression;
-        if (expression.type === 'BinaryExpression') {
-            new_expression = types.binaryExpression(expression.operator, path.node.arguments[0], path.node.arguments[1]);
-        } else if (expression.type === 'CallExpression') {
-            new_expression = types.callExpression(path.node.arguments[0], path.node.arguments.slice(1));
-        } else {
-            console.log(666)
-        }
-        path.replaceInline(new_expression);
-    }
-
     const visitor2 = {
         MemberExpression(path) {
             if (info_object_map.has(path.node.object.name)) {
-                restoreString(path);
+                const value = eval(path.toString());
+                const node = types.valueToNode(value);
+                path.replaceInline(node);
             }
         },
         CallExpression(path) {
             if (info_object_map.has(path.node.callee.object?.name)) {
-                restoreExpression(path);
+                const { info_object_properties } = info_object_map.get(path.node.callee.object.name);
+                const property = info_object_properties.find(prop => prop.key.value === path.node.callee.property.value);
+                const expression = property.value.body.body[0].argument;
+                let new_expression;
+                if (expression.type === 'BinaryExpression') {
+                    new_expression = types.binaryExpression(expression.operator, path.node.arguments[0], path.node.arguments[1]);
+                } else if (expression.type === 'CallExpression') {
+                    new_expression = types.callExpression(path.node.arguments[0], path.node.arguments.slice(1));
+                } else {
+                    console.log(666)
+                }
+                path.replaceInline(new_expression);
             }
         }
     };
