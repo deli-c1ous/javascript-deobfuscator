@@ -1,5 +1,7 @@
 # JS code deobfuscator
 
+Based on Babel and AST technique
+
 **still work in progress**
 
 ## Features
