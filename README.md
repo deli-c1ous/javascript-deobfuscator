@@ -1,10 +1,26 @@
 # JS code deobfuscator
 
+**still work in progress**
+
 ## Features
-1. static deobfuscate
-2. deobfuscate code obfuscated by obfuscator.io
-3. deobfuscate code obfuscated by jsjiami.com.v6
-4. deobfuscate code obfuscated by jsjiami.com.v7
+
+### basic
+
+- static deobfuscate
+
+### specific
+
+- deobfuscate code obfuscated by obfuscator.io
+- deobfuscate code obfuscated by jsjiami.com.v6
+- deobfuscate code obfuscated by jsjiami.com.v7
+
+### control flow flatten
+
+- `while...switch...` type
+- `for...switch...` type
+- `LogicalExpression + SequenceExpression` type
+- `for...if...else...` type
 
 ## Contact
+
 [delic1ous](https://space.bilibili.com/692064472)
