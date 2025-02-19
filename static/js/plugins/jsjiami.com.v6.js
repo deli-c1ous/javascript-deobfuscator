@@ -26,7 +26,7 @@ function handleArrayDeclaration_v6(ast) {
 }
 
 function handleDecryptStringFunctionDeclaration_v6(ast, array_name) {
-    let decrypt_string_function_name, code_str;
+    let decrypt_string_function_names = [], code_str = '';
     const visitor = {
         VariableDeclaration(path) {
             if (
@@ -39,8 +39,8 @@ function handleDecryptStringFunctionDeclaration_v6(ast, array_name) {
                 path.node.declarations[0].init?.body?.body?.length === 6 &&
                 path.node.declarations[0].init?.body?.body?.[1]?.declarations?.[0]?.init?.object?.name === array_name
             ) {
-                decrypt_string_function_name = path.node.declarations[0].id.name;
-                code_str = generate(path.node, {
+                decrypt_string_function_names.push(path.node.declarations[0].id.name);
+                code_str += generate(path.node, {
                     compact: true,
                 }).code;
                 path.remove();
@@ -57,8 +57,8 @@ function handleDecryptStringFunctionDeclaration_v6(ast, array_name) {
                 path.node.body.body.length === 6 &&
                 path.node.body.body[1]?.declarations?.[0]?.init?.object?.name === array_name
             ) {
-                decrypt_string_function_name = path.node.id.name;
-                code_str = generate(path.node, {
+                decrypt_string_function_names.push(path.node.id.name);
+                code_str += generate(path.node, {
                     compact: true,
                 }).code;
                 path.remove();
@@ -66,7 +66,7 @@ function handleDecryptStringFunctionDeclaration_v6(ast, array_name) {
         }
     };
     traverse(ast, visitor);
-    return [decrypt_string_function_name, code_str];
+    return [decrypt_string_function_names, code_str];
 }
 
 function handleChangeArrayIIFE_v6(ast, array_name) {

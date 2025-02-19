@@ -10,6 +10,7 @@ import {
 } from "./main.js";
 import { transform } from "./utils.js";
 
+
 const regions = document.querySelectorAll('.region');
 const inputTab = document.querySelector('#input-tab');
 const outputTab = document.querySelector('#output-tab');
@@ -36,6 +37,7 @@ const outputEditor = CodeMirror(outputEditorElement, {
     lineWrapping: true,
 });
 
+inputEditorElement.style.display = 'block';
 outputEditorElement.style.display = 'none';
 regions.forEach(region => {
     region.addEventListener('click', event => {
@@ -105,9 +107,9 @@ processButton.addEventListener('click', () => {
                 transform(ast => {
                     static_deobfuscate(ast);
                     const [return_array_function_name, code_str1] = handleReturnArrayFunction(ast);
-                    const [decrypt_string_function_name, code_str2] = handleDecryptStringFunction(ast, return_array_function_name);
+                    const [decrypt_string_function_names, code_str2] = handleDecryptStringFunction(ast, return_array_function_name);
                     const code_str3 = handleChangeArrayIIFE(ast, return_array_function_name)
-                    restoreCallExpression(ast, decrypt_string_function_name, code_str1, code_str2, code_str3);
+                    restoreCallExpression(ast, decrypt_string_function_names, code_str1, code_str2, code_str3);
                     restoreMemberExpression(ast);
                     static_deobfuscate(ast);
                     removeSelfDefending(ast);
@@ -122,9 +124,9 @@ processButton.addEventListener('click', () => {
                 transform(ast => {
                     static_deobfuscate(ast);
                     const [array_name, code_str1] = handleArrayDeclaration_v6(ast);
-                    const [decrypt_string_function_name, code_str2] = handleDecryptStringFunctionDeclaration_v6(ast, array_name);
+                    const [decrypt_string_function_names, code_str2] = handleDecryptStringFunctionDeclaration_v6(ast, array_name);
                     const code_str3 = handleChangeArrayIIFE_v6(ast, array_name);
-                    restoreCallExpression(ast, decrypt_string_function_name, code_str1, code_str2, code_str3);
+                    restoreCallExpression(ast, decrypt_string_function_names, code_str1, code_str2, code_str3);
                     restoreMemberExpression(ast);
                     static_deobfuscate(ast);
                     removeSelfDefending(ast);
@@ -139,9 +141,9 @@ processButton.addEventListener('click', () => {
                 transform(ast => {
                     static_deobfuscate(ast);
                     const [return_array_function_name, code_str1] = handleReturnArrayFunction_v7(ast);
-                    const [decrypt_string_function_name, code_str2] = handleDecryptStringFunction(ast, return_array_function_name);
+                    const [decrypt_string_function_names, code_str2] = handleDecryptStringFunction(ast, return_array_function_name);
                     const code_str3 = handleChangeArrayIIFE_v7(ast, return_array_function_name);
-                    restoreCallExpression(ast, decrypt_string_function_name, code_str1, code_str2, code_str3);
+                    restoreCallExpression(ast, decrypt_string_function_names, code_str1, code_str2, code_str3);
                     restoreMemberExpression(ast);
                     static_deobfuscate(ast);
                     removeSelfDefending(ast);

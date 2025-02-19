@@ -22,7 +22,7 @@ function handleReturnArrayFunction(ast) {
 }
 
 function handleDecryptStringFunction(ast, return_array_function_name) {
-    let decrypt_string_function_name, code_str;
+    let decrypt_string_function_names = [], code_str = '';
     const visitor = {
         FunctionDeclaration(path) {
             if (
@@ -31,8 +31,8 @@ function handleDecryptStringFunction(ast, return_array_function_name) {
                 path.node.body.body[2]?.argument?.callee?.name === path.node.id.name &&
                 path.node.body.body.length === 3
             ) {
-                decrypt_string_function_name = path.node.id.name;
-                code_str = generate(path.node, {
+                decrypt_string_function_names.push(path.node.id.name);
+                code_str += generate(path.node, {
                     compact: true,
                 }).code;
                 path.remove();
@@ -40,7 +40,7 @@ function handleDecryptStringFunction(ast, return_array_function_name) {
         },
     }
     traverse(ast, visitor);
-    return [decrypt_string_function_name, code_str];
+    return [decrypt_string_function_names, code_str];
 }
 
 function handleChangeArrayIIFE(ast, return_array_function_name) {
@@ -62,7 +62,7 @@ function handleChangeArrayIIFE(ast, return_array_function_name) {
     return code_str;
 }
 
-function restoreCallExpression(ast, decrypt_string_function_name, code_str1, code_str2, code_str3) {
+function restoreCallExpression(ast, decrypt_string_function_names, code_str1, code_str2, code_str3) {
     const caller_callee_map = new Map();
     const visitor1 = {
         VariableDeclarator(path) {
@@ -87,8 +87,8 @@ function restoreCallExpression(ast, decrypt_string_function_name, code_str1, cod
     eval(code_str1);
     eval(code_str2);
 
-    const decrypt_string_function_alias = [decrypt_string_function_name];
-    let current_alias = [decrypt_string_function_name];
+    const decrypt_string_function_alias = [...decrypt_string_function_names];
+    let current_alias = [...decrypt_string_function_names];
     while (current_alias.length > 0) {
         const next_alias = [];
         for (const [caller_name, { callee_name, callee_path }] of caller_callee_map) {

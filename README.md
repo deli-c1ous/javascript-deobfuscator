@@ -12,16 +12,16 @@ Based on Babel and AST technique
 
 ### specific
 
-- deobfuscate code obfuscated by obfuscator.io
-- deobfuscate code obfuscated by jsjiami.com.v6
-- deobfuscate code obfuscated by jsjiami.com.v7
+- obfuscator.io
+- jsjiami.com.v6
+- jsjiami.com.v7
 
 ### control flow flatten
 
-- `while...switch...` type
-- `for...switch...` type
-- `LogicalExpression + SequenceExpression` type
-- `for...if...else...` type
+- `while...switch...`
+- `for...switch...`
+- `LogicalExpression + SequenceExpression`
+- `for...if...else...`
 
 ## Contact
 
