@@ -1,0 +1,184 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 10px;
+    background-color: #f5f5f5;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.editor {
+    height: 400px;
+    margin-bottom: 20px;
+}
+
+.tab-container {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.tab {
+    flex: 1;
+    background: #a9a9f5; /* 柔和的蓝色 */
+    color: white;
+    padding: 15px;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    border: none;
+    font-weight: bold;
+    font-size: 20px;
+}
+
+.tab:hover {
+    background-color: #9999e6; /* 悬停时颜色加深 */
+}
+
+.tab.active {
+    background-color: #8989e0; /* 激活时颜色更深 */
+}
+
+.CodeMirror {
+    height: 100%;
+    border: 1px solid #ddd;
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.05);
+    font-size: 18px;
+}
+
+h1, h2 {
+    text-align: center;
+}
+
+.tab-container {
+    margin-bottom: 20px;
+}
+
+.region-group {
+    display: flex;
+    gap: 0;
+    margin-bottom: 20px;
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid #ccc;
+}
+
+.region {
+    flex: 1;
+    background-color: #ffffff;
+    color: #333333;
+    padding: 15px;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    font-size: 20px;
+    font-weight: bold;
+    border-right: 1px solid #ccc;
+}
+
+.region:last-child {
+    border-right: none;
+}
+
+.region.active {
+    background-color: #e0e0e0;
+}
+
+.region:hover {
+    background-color: #f0f0f0;
+}
+
+.toggle-switch {
+    margin: 15px 0;
+    display: flex;
+    align-items: center; /* 垂直对齐 */
+    gap: 10px; /* 开关按钮和文字之间的间距 */
+    justify-content: center; /* 水平居中 */
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 40px; /* 保持或调整宽度 */
+    height: 20px; /* 保持或调整高度 */
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.4s;
+    border-radius: 20px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 2px;
+    bottom: 2px;
+    background-color: white;
+    transition: 0.4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: #a9a9f5;
+}
+
+input:checked + .slider:before {
+    transform: translateX(18px);
+}
+
+.toggle-switch span {
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+}
+
+#text {
+    display: inline-block;
+    width: 100px; /* 设置固定宽度 */
+    color: #555;
+    font-size: 18px;
+}
+
+.button-group {
+    text-align: center;
+}
+
+.button-group button {
+    background: #a9a9f5; /* 柔和的蓝色 */
+    color: white;
+    border: none;
+    padding: 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 20px;
+    font-weight: bold;
+    transition: background-color 0.3s;
+    min-width: 100px;
+    display: inline-block;
+    margin: 0 5px;
+}
+
+.button-group button:hover {
+    background-color: #9999e6; /* 悬停时颜色加深 */
+}
