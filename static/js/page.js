@@ -196,12 +196,8 @@ processButton.addEventListener('click', () => {
                     traverse(ast, visitor);
                     const visitor2 = {
                         SequenceExpression(path) {
-                            if (path.get('expressions.0').isIfStatement()) {
-                                if (path.parentPath.isExpressionStatement()) {
-                                    path.parentPath.replaceInline(path.node.expressions[0]);
-                                } else {
-                                    console.log(888);
-                                }
+                            if (path.parentPath.isExpressionStatement()) {
+                                path.parentPath.replaceInline(path.node.expressions.map(expression => types.isExpression(expression) ? types.expressionStatement(expression) : expression));
                             }
                         }
                     }

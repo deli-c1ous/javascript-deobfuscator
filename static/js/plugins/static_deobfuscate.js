@@ -169,7 +169,7 @@ function static_deobfuscate(ast, { rename = false, hexadecimal_only = true } = {
         // 逗号表达式还原
         SequenceExpression(path) {
             if (path.parentPath.isExpressionStatement()) {
-                path.replaceInline(path.node.expressions.map(expression => types.expressionStatement(expression)));
+                path.parentPath.replaceInline(path.node.expressions.map(expression => types.isExpression(expression) ? types.expressionStatement(expression) : expression));
             } else if (path.parentPath.isReturnStatement()) {
                 path.parentPath.insertBefore(path.node.expressions.slice(0, -1).map(expression => types.expressionStatement(expression)));
                 path.replaceInline(path.node.expressions[path.node.expressions.length - 1]);
