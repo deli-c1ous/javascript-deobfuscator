@@ -1,16 +1,20 @@
 function deControlFlowFlatten2(path) {
     const new_body = [];
-    new_body.push(path.node.init);
     const control_variable = path.node.test.name;
-    let control_variable_value = path.node.init.declarations.find(declarator => declarator.id.name === control_variable).init.value;
+    const variable_declaration = path.node.init;
+    const declarators = variable_declaration.declarations.filter(declarator => declarator.id.name !== control_variable);
+    if (declarators.length > 0) {
+        const new_variable_declaration = types.variableDeclaration(variable_declaration.kind, declarators);
+        new_body.push(new_variable_declaration);
+    }
+    let control_variable_value = path.scope.getBinding(control_variable).path.node.init.value;
     const switch_cases = path.node.body.body[0].cases;
 
     function wanderControlFlow(control_variable_value) {
         const new_body = [];
         while (control_variable_value) {
             const switch_case = switch_cases.find(case_ => case_.test.value === control_variable_value);
-            const case_body = switch_case.consequent;
-            for (const statement of case_body) {
+            for (const statement of switch_case.consequent) {
                 if (!types.isBreakStatement(statement)) {
                     if (statement.expression?.left?.name === control_variable) {
                         const right = statement.expression.right;
