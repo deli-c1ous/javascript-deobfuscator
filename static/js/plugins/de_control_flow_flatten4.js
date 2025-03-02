@@ -1,22 +1,24 @@
 function deControlFlowFlatten4(path) {
     const new_body = [];
-    new_body.push(path.node.init);
     const control_variable = path.node.test.name;
-    const control_variable_declaration_code_str = path.scope.getBinding(control_variable).path.toString()
+    const variable_declaration = path.node.init;
+    const declarators = variable_declaration.declarations.filter(declarator => declarator.id.name !== control_variable);
+    if (declarators.length > 0) {
+        const new_variable_declaration = types.variableDeclaration(variable_declaration.kind, declarators);
+        new_body.push(new_variable_declaration);
+    }
+    const control_variable_declaration_code_str = path.scope.getBinding(control_variable).path.toString();
     eval(control_variable_declaration_code_str);
 
     function wanderIfStatement(current_if_statement) {
         const new_body = [];
-        let isFinished = false;
-        const test = current_if_statement.test;
-        const test_result = eval(generate(test).code);
+        const test_result = eval(generate(current_if_statement.test).code);
         const next = test_result ? current_if_statement.consequent : current_if_statement.alternate;
         if (types.isBlockStatement(next)) {
             for (const statement of next.body) {
                 if (types.isIfStatement(statement)) {
-                    const { isFinished: inner_isFinished, new_body: inner_new_body } = wanderIfStatement(statement);
+                    const inner_new_body = wanderIfStatement(statement);
                     new_body.push(...inner_new_body);
-                    isFinished = inner_isFinished;
                 } else if (statement.expression?.left?.name === control_variable) {
                     const assignment_expression = statement.expression;
                     const right = assignment_expression.right;
@@ -31,37 +33,32 @@ function deControlFlowFlatten4(path) {
                         const alternate = types.blockStatement(wanderControlFlow());
                         const new_if_statement = types.ifStatement(right.test, consequent, alternate);
                         new_body.push(new_if_statement);
-                        isFinished = true;
                     } else {
-                        eval(generate(assignment_expression).code);
+                        eval(generate(statement).code);
                     }
                 } else if (statement.expression?.argument?.name === control_variable) {
                     eval(generate(statement).code);
                 } else {
                     new_body.push(statement);
                     if (types.isReturnStatement(statement)) {
-                        isFinished = true;
+                        eval(`${control_variable} = 0`);
                     }
                 }
             }
         } else if (types.isIfStatement(next)) {
-            const { isFinished: inner_isFinished, new_body: inner_new_body } = wanderIfStatement(next);
+            const inner_new_body = wanderIfStatement(next);
             new_body.push(...inner_new_body);
-            isFinished = inner_isFinished;
         } else {
-            console.log(777);
+            console.log(333);
         }
-        return { isFinished, new_body };
+        return new_body;
     }
 
     function wanderControlFlow() {
         const new_body = [];
         while (eval(control_variable)) {
-            const { isFinished, new_body: inner_new_body } = wanderIfStatement(path.node.body.body[0]);
+            const inner_new_body = wanderIfStatement(path.node.body.body[0]);
             new_body.push(...inner_new_body);
-            if (isFinished) {
-                break;
-            }
         }
         return new_body;
     }

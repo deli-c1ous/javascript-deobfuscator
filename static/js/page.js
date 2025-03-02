@@ -211,14 +211,14 @@ processButton.addEventListener('click', () => {
             case 'controlFlowFlatten4':
                 transform(ast => {
                     static_deobfuscate(ast);
-                    const visitor3 = {
+                    const visitor = {
                         ForStatement(path) {
                             if (path.get('body.body').length === 1 && path.get('body.body.0').isIfStatement()) {
                                 deControlFlowFlatten4(path);
                             }
                         }
                     };
-                    traverse(ast, visitor3);
+                    traverse(ast, visitor);
                     static_deobfuscate(ast, {
                         rename: true,
                         hexadecimal_only: !checkAll,
