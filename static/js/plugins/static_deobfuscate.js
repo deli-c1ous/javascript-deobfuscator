@@ -3,7 +3,6 @@ const traverse = Babel.packages.traverse.default;
 const parse = Babel.packages.parser.parse;
 const generate = Babel.packages.generator.default;
 
-
 function static_deobfuscate(ast, { rename = false, hexadecimal_only = true } = {}) {
     let variable_count = 0;
     let function_count = 0;
@@ -103,6 +102,16 @@ function static_deobfuscate(ast, { rename = false, hexadecimal_only = true } = {
                         path.replaceInline(path.node.alternate);
                     }
                 }
+            } else {
+                // 条件表达式还原为if语句
+                const { parentPath } = path;
+                const { test, consequent, alternate } = path.node;
+                if (parentPath.isExpressionStatement()) {
+                    const if_consequent = types.blockStatement([types.expressionStatement(consequent)]);
+                    const if_alternate = types.blockStatement([types.expressionStatement(alternate)]);
+                    const new_if_statement = types.ifStatement(test, if_consequent, if_alternate);
+                    parentPath.replaceWith(new_if_statement);
+                }
             }
         },
         // 移除空语句
@@ -110,12 +119,13 @@ function static_deobfuscate(ast, { rename = false, hexadecimal_only = true } = {
             path.remove();
         },
         IfStatement(path) {
+            const { consequent, alternate } = path.node;
             // 块语句包装
-            if (!path.get('consequent').isBlockStatement()) {
-                path.node.consequent = types.blockStatement([path.node.consequent]);
+            if (!types.isBlockStatement(consequent)) {
+                path.node.consequent = types.blockStatement([consequent]);
             }
-            if (path.node.alternate && !path.get('alternate').isBlockStatement() && !path.get('alternate').isIfStatement()) {
-                path.node.alternate = types.blockStatement([path.node.alternate]);
+            if (alternate && !types.isBlockStatement(alternate)) {
+                path.node.alternate = types.blockStatement([alternate]);
             }
             // 无效if语句还原
             if (canEvaluate(path.get('test'))) {
@@ -132,7 +142,7 @@ function static_deobfuscate(ast, { rename = false, hexadecimal_only = true } = {
             }
             // 无语句体的if语句还原
             else {
-                if (path.node.alternate?.body?.length === 0) {
+                if (path.node.alternate?.body.length === 0) {
                     path.get('alternate').remove();
                 }
                 if (path.node.consequent.body.length === 0 && path.node.alternate === null) {
@@ -147,11 +157,11 @@ function static_deobfuscate(ast, { rename = false, hexadecimal_only = true } = {
                 }
             }
         },
+        // 标识符重命名
         Scope(path) {
             if (rename) {
                 path.scope.crawl();
                 for (const binding of Object.values(path.scope.bindings)) {
-                    // 标识符重命名
                     const identifier_name = binding.identifier.name;
                     if (hexadecimal_only && !/_0x|__Ox/.test(identifier_name)) {
                         continue;
@@ -169,9 +179,9 @@ function static_deobfuscate(ast, { rename = false, hexadecimal_only = true } = {
         // 逗号表达式还原
         SequenceExpression(path) {
             if (path.parentPath.isExpressionStatement()) {
-                path.parentPath.replaceInline(path.node.expressions.map(expression => types.isExpression(expression) ? types.expressionStatement(expression) : expression));
+                path.parentPath.replaceInline(path.node.expressions.map(types.expressionStatement));
             } else if (path.parentPath.isReturnStatement()) {
-                path.parentPath.insertBefore(path.node.expressions.slice(0, -1).map(expression => types.expressionStatement(expression)));
+                path.parentPath.insertBefore(path.node.expressions.slice(0, -1).map(types.expressionStatement));
                 path.replaceInline(path.node.expressions[path.node.expressions.length - 1]);
             }
         },
@@ -181,16 +191,31 @@ function static_deobfuscate(ast, { rename = false, hexadecimal_only = true } = {
                 path.remove();
             }
         },
-        ForStatement(path) {
-            // 块语句包装
-            if (!path.get('body').isBlockStatement()) {
-                path.node.body = types.blockStatement([path.node.body]);
+        // 块语句包装
+        'ForStatement|WhileStatement'(path) {
+            const { body } = path.node;
+            if (!types.isBlockStatement(body)) {
+                path.node.body = types.blockStatement([body]);
             }
         },
-        WhileStatement(path) {
-            // 块语句包装
-            if (!path.get('body').isBlockStatement()) {
-                path.node.body = types.blockStatement([path.node.body]);
+        // 逻辑表达式还原为if语句
+        LogicalExpression(path) {
+            const { parentPath } = path;
+            const { left, right, operator } = path.node;
+            if (parentPath.isExpressionStatement()) {
+                const consequent = types.blockStatement([types.expressionStatement(right)]);
+                const alternate = types.blockStatement([]);
+                const new_if_statement = operator === '&&' ? types.ifStatement(left, consequent, alternate) : types.ifStatement(left, alternate, consequent);
+                parentPath.replaceInline(new_if_statement);
+            }
+        },
+        // 变量声明函数还原为函数声明
+        VariableDeclarator(path) {
+            const { id, init } = path.node;
+            if (types.isFunctionExpression(init)) {
+                const function_declaration = types.functionDeclaration(id, init.params, init.body, init.generator, init.async);
+                path.parentPath.insertBefore(function_declaration);
+                path.remove();
             }
         }
     };

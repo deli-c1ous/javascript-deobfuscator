@@ -20,32 +20,14 @@ function handleArrayDeclaration_v6(ast) {
                 path.remove();
             }
         }
-    }
+    };
     traverse(ast, visitor);
-    return [array_name, code_str];
+    return { array_name, code_str };
 }
 
-function handleDecryptStringFunctionDeclaration_v6(ast, array_name) {
+function handleDecryptStringFunctions_v6(ast, array_name) {
     let decrypt_string_function_names = [], code_str = '';
     const visitor = {
-        VariableDeclaration(path) {
-            if (
-                types.isExpressionStatement(path.node.declarations[0].init?.body?.body?.[0]) &&
-                types.isVariableDeclaration(path.node.declarations[0].init?.body?.body?.[1]) &&
-                types.isIfStatement(path.node.declarations[0].init?.body?.body?.[2]) &&
-                types.isVariableDeclaration(path.node.declarations[0].init?.body?.body?.[3]) &&
-                types.isIfStatement(path.node.declarations[0].init?.body?.body?.[4]) &&
-                types.isReturnStatement(path.node.declarations[0].init?.body?.body?.[5]) &&
-                path.node.declarations[0].init?.body?.body?.length === 6 &&
-                path.node.declarations[0].init?.body?.body?.[1]?.declarations?.[0]?.init?.object?.name === array_name
-            ) {
-                decrypt_string_function_names.push(path.node.declarations[0].id.name);
-                code_str += generate(path.node, {
-                    compact: true,
-                }).code;
-                path.remove();
-            }
-        },
         FunctionDeclaration(path) {
             if (
                 types.isExpressionStatement(path.node.body.body[0]) &&
@@ -66,7 +48,7 @@ function handleDecryptStringFunctionDeclaration_v6(ast, array_name) {
         }
     };
     traverse(ast, visitor);
-    return [decrypt_string_function_names, code_str];
+    return { decrypt_string_function_names, code_str };
 }
 
 function handleChangeArrayIIFE_v6(ast, array_name) {
@@ -79,14 +61,14 @@ function handleChangeArrayIIFE_v6(ast, array_name) {
                 types.isNumericLiteral(path.node.arguments[2]) &&
                 path.node.arguments.length === 3
             ) {
-                const parentPath = path.getStatementParent();
-                code_str = generate(parentPath.node, {
+                const parent_path = path.getStatementParent();
+                code_str = generate(parent_path.node, {
                     compact: true,
                 }).code;
-                parentPath.remove();
+                parent_path.remove();
             }
         }
-    }
+    };
     traverse(ast, visitor);
     return code_str;
 }

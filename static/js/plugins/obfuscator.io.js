@@ -18,10 +18,10 @@ function handleReturnArrayFunction(ast) {
         },
     }
     traverse(ast, visitor);
-    return [return_array_function_name, code_str];
+    return { return_array_function_name, code_str };
 }
 
-function handleDecryptStringFunction(ast, return_array_function_name) {
+function handleDecryptStringFunctions(ast, return_array_function_name) {
     let decrypt_string_function_names = [], code_str = '';
     const visitor = {
         FunctionDeclaration(path) {
@@ -40,7 +40,7 @@ function handleDecryptStringFunction(ast, return_array_function_name) {
         },
     }
     traverse(ast, visitor);
-    return [decrypt_string_function_names, code_str];
+    return { decrypt_string_function_names, code_str };
 }
 
 function handleChangeArrayIIFE(ast, return_array_function_name) {
