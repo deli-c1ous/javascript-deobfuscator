@@ -1,4 +1,4 @@
-function deControlFlowFlatten(path) {
+function deControlFlowFlatten2(path) {
     const new_body = [];
     const control_variable = path.node.test.name;
     const variable_declaration = path.node.init;
