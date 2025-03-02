@@ -39,7 +39,7 @@ function handleReturnArrayFunction_v7(ast) {
         }
     };
     traverse(ast, visitor);
-    const { return_array_function_name, code_str: code_str1 } = originalHandleReturnArrayFunction(ast);
+    const { return_array_function_name, code_str: code_str1 } = handleReturnArrayFunction(ast);
     code_str += code_str1;
     return { return_array_function_name, code_str };
 }
