@@ -198,18 +198,7 @@ function static_deobfuscate(ast, { rename = false, hexadecimal_only = true } = {
                 path.node.body = types.blockStatement([body]);
             }
         },
-        // 逻辑表达式还原为if语句
-        LogicalExpression(path) {
-            const { parentPath } = path;
-            const { left, right, operator } = path.node;
-            if (parentPath.isExpressionStatement()) {
-                const consequent = types.blockStatement([types.expressionStatement(right)]);
-                const alternate = types.blockStatement([]);
-                const new_if_statement = operator === '&&' ? types.ifStatement(left, consequent, alternate) : types.ifStatement(left, alternate, consequent);
-                parentPath.replaceInline(new_if_statement);
-            }
-        },
-        // 变量声明函数还原为函数声明
+        // 函数的变量声明还原为函数声明
         VariableDeclarator(path) {
             const { id, init } = path.node;
             if (types.isFunctionExpression(init)) {

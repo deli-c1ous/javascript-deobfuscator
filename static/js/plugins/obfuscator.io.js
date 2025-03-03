@@ -239,3 +239,33 @@ function deControlFlowFlatten(ast) {
     };
     traverse(ast, visitor);
 }
+
+function restoreLogicalExpression(ast) {
+    const visitor = {
+        LogicalExpression(path) {
+            const { container, key, parentPath } = path;
+            const { left, right, operator } = path.node;
+            if (parentPath.isExpressionStatement() || parentPath.isSequenceExpression()) {
+                const consequent = types.blockStatement([types.expressionStatement(right)]);
+                const alternate = types.blockStatement([]);
+                const new_if_statement = operator === '&&' ? types.ifStatement(left, consequent, alternate) : types.ifStatement(left, alternate, consequent);
+                if (parentPath.isExpressionStatement()) {
+                    parentPath.replaceInline(new_if_statement);
+                } else if (parentPath.isSequenceExpression()) {
+                    container[key] = new_if_statement;
+                }
+            }
+        },
+    };
+    traverse(ast, visitor);
+
+    const visitor2 = {
+        SequenceExpression(path) {
+            const { parentPath } = path;
+            if (parentPath.isExpressionStatement()) {
+                parentPath.replaceInline(path.node.expressions.map(expr => types.isIfStatement(expr) ? expr : types.expressionStatement(expr)));
+            }
+        }
+    };
+    traverse(ast, visitor2);
+}
