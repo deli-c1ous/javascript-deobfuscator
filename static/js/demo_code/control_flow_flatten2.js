@@ -1,3 +1,4 @@
+;
 for (var OS, DO, S, mi, xj = 1, X, mv, mP, mR; xj;) switch (xj) {
     case 1:
         OS = function () {

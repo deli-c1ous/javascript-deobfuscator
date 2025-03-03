@@ -25,237 +25,307 @@ for (var 混喵, 全六, 固混, 全固, 安嘿, 嘿混 = 2, 哒全, 混全, 混
                     嘿混 -= 22;
                   }
                 }
-              } else if (65 < 嘿混) {
-                if (69 > ++嘿混) {
-                  if (66 < --嘿混) {
-                    return 1;
-                  } else {
-                    嘿混 -= 哒喵.indexOf(混点) < 16 ? 29 : 30;
-                  }
-                } else if (70 > 嘿混--) {
-                  嘿混 = 68;
-                  全固 = 0;
-                } else {
-                  return 1;
-                }
-              } else if (62 > 嘿混++) {
-                if (嘿混 < 60) {
-                  if (59 > 嘿混) {
-                    return 全固;
-                  } else {
-                    return 1;
-                  }
-                } else if (嘿混 > 61) {
-                  return 0;
-                } else {
-                  if (嘿混 > 60) {
-                    嘿混 += 哒淆.length > 39 ? -40 : -20;
-                  } else {
-                    嘿混 = 4;
-                    全固 = 0;
-                  }
-                }
-              } else if (65 > 嘿混) {
-                if (++嘿混 < 65) {
-                  嘿混 -= Math.random.prototype ? 2 : 24;
-                } else {
-                  嘿混 = 51;
-                  全固 = 0;
-                }
-              } else if (嘿混 > 65) {
-                嘿混 = alert.prototype ? 70 : 56;
               } else {
-                return 1;
-              }
-            } else if (嘿混 < 21) {
-              if (14 < 嘿混--) {
-                if (嘿混 < 16) {
-                  if (14 < 嘿混) {
-                    嘿混 -= 9;
-                    全固 = 0;
+                if (65 < 嘿混) {
+                  if (69 > ++嘿混) {
+                    if (66 < --嘿混) {
+                      return 1;
+                    } else {
+                      嘿混 -= 哒喵.indexOf(混点) < 16 ? 29 : 30;
+                    }
                   } else {
-                    嘿混 -= function () {
-                      for (var 嘿混 = null; 嘿混;) {}
-                    }.toString.prototype ? 11 : -47;
+                    if (70 > 嘿混--) {
+                      嘿混 = 68;
+                      全固 = 0;
+                    } else {
+                      return 1;
+                    }
                   }
-                } else if (17 < 嘿混--) {
-                  if (18 > 嘿混) {
-                    return 1;
-                  } else {
-                    (function () {
-                      debugger;
-                    })();
-                    嘿混 = 54;
-                  }
-                } else if (16 > 嘿混) {
-                  return 1;
                 } else {
-                  return 0;
-                }
-              } else if (嘿混++ > 9) {
-                if (嘿混 > 13) {
-                  嘿混 -= 9;
-                  全固 = 0;
-                } else if (嘿混 > 12) {
-                  return 0;
-                } else if (嘿混 > 11) {
-                  嘿混 = 59;
-                  哒淆 = 安咪.call(哒好);
-                } else {
-                  return 1;
-                }
-              } else if (嘿混 > 6) {
-                if (嘿混 > 9) {
-                  全固 = 0;
-                  嘿混 += 2;
-                } else if (嘿混 > 8) {
-                  全固 = 0;
-                  嘿混 += 7;
-                } else if (嘿混++ < 8) {
-                  return 0;
-                } else {
-                  return 1;
-                }
-              } else if (5 < 嘿混) {
-                return 0;
-              } else if (嘿混 < 4) {
-                if (嘿混++ > 2) {
-                  嘿混 = 固嘿.length < 33 ? 8 : 24;
-                } else {
-                  全固 = 0;
-                  嘿混 += 27;
-                }
-              } else if (嘿混 > 4) {
-                return 1;
-              } else {
-                全固 = 0;
-                嘿混 = 47;
-              }
-            } else if (嘿混 < 39) {
-              if (嘿混++ > 33) {
-                if (嘿混-- > 38) {
-                  嘿混 = 31;
-                  全固 = 0;
-                } else if (嘿混 > 36) {
-                  嘿混 += 六.indexOf(混点) < 16 ? 30 : 8;
-                } else if (35 < 嘿混) {
-                  嘿混 = 28;
-                  六 = 安咪.call(Math.random);
-                } else if (嘿混 > 34) {
-                  嘿混 += 哒喵.length > 39 ? 23 : -13;
-                } else {
-                  return 1;
-                }
-              } else if (27 > 嘿混) {
-                if (25 < 嘿混) {
-                  ++嘿混;
-                  安加 = 安咪.call(Function.prototype.toString);
-                } else {
-                  if (嘿混 > 24) {
-                    嘿混 += 40;
-                    混点 = "[native code]";
-                  } else {
-                    if (24 > 嘿混) {
-                      if (23 > 嘿混) {
-                        嘿混 -= !全固 ? -38 : 3;
+                  if (62 > 嘿混++) {
+                    if (嘿混 < 60) {
+                      if (59 > 嘿混) {
+                        return 全固;
                       } else {
-                        嘿混 += 34;
+                        return 1;
+                      }
+                    } else {
+                      if (嘿混 > 61) {
+                        return 0;
+                      } else {
+                        if (嘿混 > 60) {
+                          嘿混 += 哒淆.length > 39 ? -40 : -20;
+                        } else {
+                          嘿混 = 4;
+                          全固 = 0;
+                        }
+                      }
+                    }
+                  } else {
+                    if (65 > 嘿混) {
+                      if (++嘿混 < 65) {
+                        嘿混 -= Math.random.prototype ? 2 : 24;
+                      } else {
+                        嘿混 = 51;
                         全固 = 0;
                       }
                     } else {
-                      嘿混 += 哒喵.length < 32 ? -23 : 11;
+                      if (嘿混 > 65) {
+                        嘿混 = alert.prototype ? 70 : 56;
+                      } else {
+                        return 1;
+                      }
                     }
                   }
                 }
-              } else if (31 > 嘿混--) {
-                if (28 < 嘿混--) {
-                  嘿混 -= 六.length > 39 ? 13 : -10;
-                } else if (嘿混 > 26) {
-                  嘿混 = 安加.length > 42 ? 9 : 26;
-                } else if (嘿混 > 25) {
-                  嘿混 += 安加.length < 33 ? 6 : -3;
-                } else {
-                  return 1;
-                }
-              } else if (嘿混 > 32) {
-                全固 = 0;
-                嘿混 -= 23;
-              } else if (31 < 嘿混) {
-                return 0;
-              } else if (嘿混 > 30) {
-                return 0;
-              } else {
-                嘿混 -= 12;
-                全固 = 0;
               }
-            } else if (44 > 嘿混++) {
-              if (嘿混 > 43) {
-                嘿混 += 固嘿.length > 42 ? 8 : -42;
-              } else {
-                if (42 < 嘿混--) {
-                  嘿混 += 哒淆.length < 32 ? -29 : 30;
-                } else {
-                  if (41 > 嘿混) {
-                    if (嘿混 < 40) {
-                      嘿混 -= 六.length < 32 ? 10 : -10;
-                    } else {
-                      全固 = 0;
-                      嘿混 += 26;
-                    }
-                  } else {
-                    嘿混 += "".indexOf.prototype ? 5 : 2;
-                  }
-                }
-              }
-            } else if (53 < ++嘿混) {
-              if (嘿混-- < 56) {
-                if (嘿混 > 53) {
-                  嘿混 = 17;
-                  全固 = 0;
-                } else {
-                  return 1;
-                }
-              } else {
-                if (嘿混 > 56) {
-                  嘿混 = 25;
-                  全固 = 0;
-                } else {
-                  if (55 > --嘿混) {
-                    全固 = 0;
-                    嘿混 += 9;
-                  } else {
-                    嘿混 = 48;
-                    安咪 = Function.prototype.toString;
-                  }
-                }
-              }
-            } else if (嘿混 < 50) {
-              if (48 > 嘿混--) {
-                if (嘿混 > 45) {
-                  嘿混 -= 安加.indexOf(混点) < 16 ? 7 : -23;
-                } else {
-                  嘿混 -= function () {
-                    for (var 嘿混 = null; 嘿混;) {}
-                  }.call.prototype ? -26 : -19;
-                }
-              } else {
-                if (47 < 嘿混) {
-                  嘿混 = 33;
-                  全固 = 0;
-                } else {
-                  嘿混 += 固嘿.indexOf(混点) < 16 ? 8 : -3;
-                }
-              }
-            } else if (52 < 嘿混) {
-              return 1;
-            } else if (51 < 嘿混) {
-              固嘿 = 安咪.call(String.prototype.indexOf);
-              嘿混 -= 10;
-            } else if (嘿混 > 50) {
-              嘿混 = 11;
-              哒好 = Function.prototype.call;
             } else {
-              return 1;
+              if (嘿混 < 21) {
+                if (14 < 嘿混--) {
+                  if (嘿混 < 16) {
+                    if (14 < 嘿混) {
+                      嘿混 -= 9;
+                      全固 = 0;
+                    } else {
+                      嘿混 -= function () {
+                        for (var 嘿混 = null; 嘿混;) {}
+                      }.toString.prototype ? 11 : -47;
+                    }
+                  } else {
+                    if (17 < 嘿混--) {
+                      if (18 > 嘿混) {
+                        return 1;
+                      } else {
+                        (function () {
+                          debugger;
+                        })();
+                        嘿混 = 54;
+                      }
+                    } else {
+                      if (16 > 嘿混) {
+                        return 1;
+                      } else {
+                        return 0;
+                      }
+                    }
+                  }
+                } else {
+                  if (嘿混++ > 9) {
+                    if (嘿混 > 13) {
+                      嘿混 -= 9;
+                      全固 = 0;
+                    } else {
+                      if (嘿混 > 12) {
+                        return 0;
+                      } else {
+                        if (嘿混 > 11) {
+                          嘿混 = 59;
+                          哒淆 = 安咪.call(哒好);
+                        } else {
+                          return 1;
+                        }
+                      }
+                    }
+                  } else {
+                    if (嘿混 > 6) {
+                      if (嘿混 > 9) {
+                        全固 = 0;
+                        嘿混 += 2;
+                      } else {
+                        if (嘿混 > 8) {
+                          全固 = 0;
+                          嘿混 += 7;
+                        } else {
+                          if (嘿混++ < 8) {
+                            return 0;
+                          } else {
+                            return 1;
+                          }
+                        }
+                      }
+                    } else {
+                      if (5 < 嘿混) {
+                        return 0;
+                      } else {
+                        if (嘿混 < 4) {
+                          if (嘿混++ > 2) {
+                            嘿混 = 固嘿.length < 33 ? 8 : 24;
+                          } else {
+                            全固 = 0;
+                            嘿混 += 27;
+                          }
+                        } else {
+                          if (嘿混 > 4) {
+                            return 1;
+                          } else {
+                            全固 = 0;
+                            嘿混 = 47;
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              } else {
+                if (嘿混 < 39) {
+                  if (嘿混++ > 33) {
+                    if (嘿混-- > 38) {
+                      嘿混 = 31;
+                      全固 = 0;
+                    } else {
+                      if (嘿混 > 36) {
+                        嘿混 += 六.indexOf(混点) < 16 ? 30 : 8;
+                      } else {
+                        if (35 < 嘿混) {
+                          嘿混 = 28;
+                          六 = 安咪.call(Math.random);
+                        } else {
+                          if (嘿混 > 34) {
+                            嘿混 += 哒喵.length > 39 ? 23 : -13;
+                          } else {
+                            return 1;
+                          }
+                        }
+                      }
+                    }
+                  } else {
+                    if (27 > 嘿混) {
+                      if (25 < 嘿混) {
+                        ++嘿混;
+                        安加 = 安咪.call(Function.prototype.toString);
+                      } else {
+                        if (嘿混 > 24) {
+                          嘿混 += 40;
+                          混点 = "[native code]";
+                        } else {
+                          if (24 > 嘿混) {
+                            if (23 > 嘿混) {
+                              嘿混 -= !全固 ? -38 : 3;
+                            } else {
+                              嘿混 += 34;
+                              全固 = 0;
+                            }
+                          } else {
+                            嘿混 += 哒喵.length < 32 ? -23 : 11;
+                          }
+                        }
+                      }
+                    } else {
+                      if (31 > 嘿混--) {
+                        if (28 < 嘿混--) {
+                          嘿混 -= 六.length > 39 ? 13 : -10;
+                        } else {
+                          if (嘿混 > 26) {
+                            嘿混 = 安加.length > 42 ? 9 : 26;
+                          } else {
+                            if (嘿混 > 25) {
+                              嘿混 += 安加.length < 33 ? 6 : -3;
+                            } else {
+                              return 1;
+                            }
+                          }
+                        }
+                      } else {
+                        if (嘿混 > 32) {
+                          全固 = 0;
+                          嘿混 -= 23;
+                        } else {
+                          if (31 < 嘿混) {
+                            return 0;
+                          } else {
+                            if (嘿混 > 30) {
+                              return 0;
+                            } else {
+                              嘿混 -= 12;
+                              全固 = 0;
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                } else {
+                  if (44 > 嘿混++) {
+                    if (嘿混 > 43) {
+                      嘿混 += 固嘿.length > 42 ? 8 : -42;
+                    } else {
+                      if (42 < 嘿混--) {
+                        嘿混 += 哒淆.length < 32 ? -29 : 30;
+                      } else {
+                        if (41 > 嘿混) {
+                          if (嘿混 < 40) {
+                            嘿混 -= 六.length < 32 ? 10 : -10;
+                          } else {
+                            全固 = 0;
+                            嘿混 += 26;
+                          }
+                        } else {
+                          嘿混 += "".indexOf.prototype ? 5 : 2;
+                        }
+                      }
+                    }
+                  } else {
+                    if (53 < ++嘿混) {
+                      if (嘿混-- < 56) {
+                        if (嘿混 > 53) {
+                          嘿混 = 17;
+                          全固 = 0;
+                        } else {
+                          return 1;
+                        }
+                      } else {
+                        if (嘿混 > 56) {
+                          嘿混 = 25;
+                          全固 = 0;
+                        } else {
+                          if (55 > --嘿混) {
+                            全固 = 0;
+                            嘿混 += 9;
+                          } else {
+                            嘿混 = 48;
+                            安咪 = Function.prototype.toString;
+                          }
+                        }
+                      }
+                    } else {
+                      if (嘿混 < 50) {
+                        if (48 > 嘿混--) {
+                          if (嘿混 > 45) {
+                            嘿混 -= 安加.indexOf(混点) < 16 ? 7 : -23;
+                          } else {
+                            嘿混 -= function () {
+                              for (var 嘿混 = null; 嘿混;) {}
+                            }.call.prototype ? -26 : -19;
+                          }
+                        } else {
+                          if (47 < 嘿混) {
+                            嘿混 = 33;
+                            全固 = 0;
+                          } else {
+                            嘿混 += 固嘿.indexOf(混点) < 16 ? 8 : -3;
+                          }
+                        }
+                      } else {
+                        if (52 < 嘿混) {
+                          return 1;
+                        } else {
+                          if (51 < 嘿混) {
+                            固嘿 = 安咪.call(String.prototype.indexOf);
+                            嘿混 -= 10;
+                          } else {
+                            if (嘿混 > 50) {
+                              嘿混 = 11;
+                              哒好 = Function.prototype.call;
+                            } else {
+                              return 1;
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
             }
           }
         };
@@ -344,88 +414,106 @@ for (var 混喵, 全六, 固混, 全固, 安嘿, 嘿混 = 2, 哒全, 混全, 混
                       } else {
                         return 0;
                       }
-                    } else if (24 < 嘿混) {
-                      if (嘿混 > 25) {
-                        全固 = 0;
-                        嘿混 -= 18;
-                      } else {
-                        return 1;
-                      }
-                    } else if (嘿混 < 24) {
-                      return 0;
                     } else {
-                      全固 = 0;
-                      嘿混 -= 2;
-                    }
-                  } else if (嘿混++ < 8) {
-                    if (4 < --嘿混) {
-                      if (6 > 嘿混--) {
-                        嘿混 += 20;
-                        全固 = 0;
+                      if (24 < 嘿混) {
+                        if (嘿混 > 25) {
+                          全固 = 0;
+                          嘿混 -= 18;
+                        } else {
+                          return 1;
+                        }
                       } else {
-                        if (6 > 嘿混++) {
-                          嘿混 = 14;
+                        if (嘿混 < 24) {
+                          return 0;
+                        } else {
+                          全固 = 0;
+                          嘿混 -= 2;
+                        }
+                      }
+                    }
+                  } else {
+                    if (嘿混++ < 8) {
+                      if (4 < --嘿混) {
+                        if (6 > 嘿混--) {
+                          嘿混 += 20;
                           全固 = 0;
                         } else {
-                          嘿混 -= !全固 ? -4 : -12;
+                          if (6 > 嘿混++) {
+                            嘿混 = 14;
+                            全固 = 0;
+                          } else {
+                            嘿混 -= !全固 ? -4 : -12;
+                          }
+                        }
+                      } else {
+                        if (3 < 嘿混) {
+                          嘿混 += 16;
+                          全固 = 0;
+                        } else {
+                          if (2 < 嘿混) {
+                            (function () {
+                              debugger;
+                            })();
+                            嘿混 = 2;
+                          } else {
+                            if (3 > ++嘿混) {
+                              嘿混 = 17;
+                              混点 = "[native code]";
+                            } else {
+                              嘿混 -= 哒喵.length < 32 ? -3 : -18;
+                            }
+                          }
                         }
                       }
                     } else {
-                      if (3 < 嘿混) {
-                        嘿混 += 16;
-                        全固 = 0;
-                      } else {
-                        if (2 < 嘿混) {
-                          (function () {
-                            debugger;
-                          })();
-                          嘿混 = 2;
-                        } else {
-                          if (3 > ++嘿混) {
-                            嘿混 = 17;
-                            混点 = "[native code]";
+                      if (嘿混 > 14) {
+                        if (嘿混 < 17) {
+                          if (嘿混 > 15) {
+                            嘿混 -= 六.length < 32 ? -9 : 15;
                           } else {
-                            嘿混 -= 哒喵.length < 32 ? -3 : -18;
+                            return 0;
+                          }
+                        } else {
+                          if (嘿混 < 18) {
+                            全固 = 0;
+                            ++嘿混;
+                          } else {
+                            if (--嘿混 > 17) {
+                              if (嘿混 > 18) {
+                                哒喵 = alert.toString();
+                                嘿混 = 12;
+                              } else {
+                                return 1;
+                              }
+                            } else {
+                              嘿混 += 哒喵.indexOf(混点) < 16 ? -13 : -4;
+                            }
+                          }
+                        }
+                      } else {
+                        if (--嘿混 > 11) {
+                          if (嘿混 > 12) {
+                            嘿混 = 六.indexOf(混点) < 16 ? 5 : 9;
+                          } else {
+                            嘿混 = 哒喵.length > 39 ? 16 : 3;
+                          }
+                        } else {
+                          if (嘿混-- < 10) {
+                            if (7 < 嘿混) {
+                              return 哒咪();
+                            } else {
+                              return 1;
+                            }
+                          } else {
+                            if (嘿混 < 10) {
+                              嘿混 = 六.length > 39 ? 23 : 15;
+                            } else {
+                              return 0;
+                            }
                           }
                         }
                       }
                     }
-                  } else if (嘿混 > 14) {
-                    if (嘿混 < 17) {
-                      if (嘿混 > 15) {
-                        嘿混 -= 六.length < 32 ? -9 : 15;
-                      } else {
-                        return 0;
-                      }
-                    } else if (嘿混 < 18) {
-                      全固 = 0;
-                      ++嘿混;
-                    } else if (--嘿混 > 17) {
-                      if (嘿混 > 18) {
-                        哒喵 = alert.toString();
-                        嘿混 = 12;
-                      } else {
-                        return 1;
-                      }
-                    } else {
-                      嘿混 += 哒喵.indexOf(混点) < 16 ? -13 : -4;
-                    }
-                  } else if (--嘿混 > 11) {
-                    if (嘿混 > 12) {
-                      嘿混 = 六.indexOf(混点) < 16 ? 5 : 9;
-                    } else {
-                      嘿混 = 哒喵.length > 39 ? 16 : 3;
-                    }
-                  } else if (嘿混-- < 10) {
-                    if (7 < 嘿混) {
-                      return 哒咪();
-                    } else {
-                      return 1;
-                    }
-                  } else if (嘿混 < 10) {
-                    嘿混 = 六.length > 39 ? 23 : 15;
-                  } else {
-                    return 0;
                   }
                 }
               };
