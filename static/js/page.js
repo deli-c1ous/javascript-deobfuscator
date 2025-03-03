@@ -1,8 +1,6 @@
 import {
     static_deobfuscate_demo_code,
     obfuscator_io_demo_code,
-    jsjiami_v6_demo_code,
-    jsjiami_v7_demo_code,
     control_flow_flatten_demo_code1,
     control_flow_flatten_demo_code2,
     control_flow_flatten_demo_code3,
@@ -112,48 +110,6 @@ processButton.addEventListener('click', () => {
                         code_str: code_str2
                     } = handleDecryptStringFunctions(ast, return_array_function_name);
                     const code_str3 = handleChangeArrayIIFE(ast, return_array_function_name)
-                    restoreCallExpression(ast, decrypt_string_function_names, code_str1, code_str2, code_str3);
-                    restoreMemberExpression(ast);
-                    static_deobfuscate(ast);
-                    removeSelfDefending(ast);
-                    deControlFlowFlatten(ast);
-                    restoreLogicalAndConditionalExpression(ast);
-                    static_deobfuscate(ast, {
-                        rename: true,
-                        hexadecimal_only: !checkAll,
-                    });
-                });
-                break;
-            case 'jsjiami.com.v6':
-                transform(ast => {
-                    static_deobfuscate(ast);
-                    const { array_name, code_str: code_str1 } = handleArrayDeclaration_v6(ast);
-                    const {
-                        decrypt_string_function_names,
-                        code_str: code_str2
-                    } = handleDecryptStringFunctions_v6(ast, array_name);
-                    const code_str3 = handleChangeArrayIIFE_v6(ast, array_name);
-                    restoreCallExpression(ast, decrypt_string_function_names, code_str1, code_str2, code_str3);
-                    restoreMemberExpression(ast);
-                    static_deobfuscate(ast);
-                    removeSelfDefending(ast);
-                    deControlFlowFlatten(ast);
-                    restoreLogicalAndConditionalExpression(ast);
-                    static_deobfuscate(ast, {
-                        rename: true,
-                        hexadecimal_only: !checkAll,
-                    });
-                });
-                break;
-            case 'jsjiami.com.v7':
-                transform(ast => {
-                    static_deobfuscate(ast);
-                    const { return_array_function_name, code_str: code_str1 } = handleReturnArrayFunction_v7(ast);
-                    const {
-                        decrypt_string_function_names,
-                        code_str: code_str2
-                    } = handleDecryptStringFunctions(ast, return_array_function_name);
-                    const code_str3 = handleChangeArrayIIFE_v7(ast, return_array_function_name);
                     restoreCallExpression(ast, decrypt_string_function_names, code_str1, code_str2, code_str3);
                     restoreMemberExpression(ast);
                     static_deobfuscate(ast);

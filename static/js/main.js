@@ -6,8 +6,6 @@ async function fetchCode(filepath) {
 const filepaths = [
     'static_deobfuscate.js',
     'obfuscator.io.js',
-    'jsjiami.com.v6.js',
-    'jsjiami.com.v7.js',
     'control_flow_flatten1.js',
     'control_flow_flatten2.js',
     'control_flow_flatten3.js',
@@ -16,8 +14,6 @@ const filepaths = [
 const [
     static_deobfuscate_demo_code,
     obfuscator_io_demo_code,
-    jsjiami_v6_demo_code,
-    jsjiami_v7_demo_code,
     control_flow_flatten_demo_code1,
     control_flow_flatten_demo_code2,
     control_flow_flatten_demo_code3,
@@ -27,8 +23,6 @@ const [
 export {
     static_deobfuscate_demo_code,
     obfuscator_io_demo_code,
-    jsjiami_v6_demo_code,
-    jsjiami_v7_demo_code,
     control_flow_flatten_demo_code1,
     control_flow_flatten_demo_code2,
     control_flow_flatten_demo_code3,
