@@ -58,24 +58,7 @@ function static_deobfuscate(ast, { rename = false, hexadecimal_only = true } = {
                     rawValue: value,
                 };
             }
-            value = value.replaceAll('\\', '\\\\');
-            let quote;
-            if (!value.includes('"')) {
-                quote = '"';
-            } else if (!value.includes("'")) {
-                quote = "'";
-            } else {
-                const double_quote_count = value.split('"').length - 1;
-                const single_quote_count = value.split("'").length - 1;
-                if (double_quote_count > single_quote_count) {
-                    quote = "'";
-                    value = value.replaceAll("'", "\\'");
-                } else {
-                    quote = '"';
-                    value = value.replaceAll('"', '\\"');
-                }
-            }
-            path.node.extra.raw = quote + value + quote;
+            path.node.extra.raw = JSON.stringify(value);
         },
         TemplateLiteral(path) {
             for (const element of path.node.quasis) {
@@ -101,16 +84,6 @@ function static_deobfuscate(ast, { rename = false, hexadecimal_only = true } = {
                     } else {
                         path.replaceInline(path.node.alternate);
                     }
-                }
-            } else {
-                // 条件表达式还原为if语句
-                const { parentPath } = path;
-                const { test, consequent, alternate } = path.node;
-                if (parentPath.isExpressionStatement()) {
-                    const if_consequent = types.blockStatement([types.expressionStatement(consequent)]);
-                    const if_alternate = types.blockStatement([types.expressionStatement(alternate)]);
-                    const new_if_statement = types.ifStatement(test, if_consequent, if_alternate);
-                    parentPath.replaceWith(new_if_statement);
                 }
             }
         },
@@ -145,14 +118,13 @@ function static_deobfuscate(ast, { rename = false, hexadecimal_only = true } = {
                 if (path.node.alternate?.body.length === 0) {
                     path.get('alternate').remove();
                 }
-                if (path.node.consequent.body.length === 0 && path.node.alternate === null) {
-                    if (isMeaningfulExpression(path.get('test'))) {
-                        const expression_paths = path.get('test').isSequenceExpression() ? path.get('test.expressions') : [path.get('test')];
-                        const meaningful_expression_paths = expression_paths.filter(isMeaningfulExpression);
-                        const meaningful_expressions = meaningful_expression_paths.map(expression_path => types.expressionStatement(expression_path.node));
-                        path.replaceInline(meaningful_expressions);
+                if (path.node.consequent.body.length === 0) {
+                    if (path.node.alternate === null) {
+                        path.replaceInline(types.expressionStatement(path.node.test));
                     } else {
-                        path.remove();
+                        const new_test = types.unaryExpression("!", path.node.test, true);
+                        const new_if_statement = types.ifStatement(new_test, path.node.alternate, null);
+                        path.replaceInline(new_if_statement);
                     }
                 }
             }
@@ -183,6 +155,9 @@ function static_deobfuscate(ast, { rename = false, hexadecimal_only = true } = {
             } else if (path.parentPath.isReturnStatement()) {
                 path.parentPath.insertBefore(path.node.expressions.slice(0, -1).map(types.expressionStatement));
                 path.replaceInline(path.node.expressions[path.node.expressions.length - 1]);
+            } else if (path.key === 'test') {
+                path.getStatementParent().insertBefore(path.node.expressions.slice(0, -1).map(types.expressionStatement));
+                path.replaceInline(path.node.expressions[path.node.expressions.length - 1]);
             }
         },
         // 移除无效的表达式语句
@@ -205,6 +180,14 @@ function static_deobfuscate(ast, { rename = false, hexadecimal_only = true } = {
                 const function_declaration = types.functionDeclaration(id, init.params, init.body, init.generator, init.async);
                 path.parentPath.insertBefore(function_declaration);
                 path.remove();
+            }
+        },
+        // 方括号属性还原为点属性
+        MemberExpression(path) {
+            const { computed, property } = path.node;
+            if (computed === true && types.isStringLiteral(property)) {
+                path.node.computed = false;
+                path.node.property = types.identifier(property.value);
             }
         }
     };

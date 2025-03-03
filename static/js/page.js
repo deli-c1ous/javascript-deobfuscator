@@ -117,7 +117,7 @@ processButton.addEventListener('click', () => {
                     static_deobfuscate(ast);
                     removeSelfDefending(ast);
                     deControlFlowFlatten(ast);
-                    restoreLogicalExpression(ast);
+                    restoreLogicalAndConditionalExpression(ast);
                     static_deobfuscate(ast, {
                         rename: true,
                         hexadecimal_only: !checkAll,
@@ -138,7 +138,7 @@ processButton.addEventListener('click', () => {
                     static_deobfuscate(ast);
                     removeSelfDefending(ast);
                     deControlFlowFlatten(ast);
-                    restoreLogicalExpression(ast);
+                    restoreLogicalAndConditionalExpression(ast);
                     static_deobfuscate(ast, {
                         rename: true,
                         hexadecimal_only: !checkAll,
@@ -159,7 +159,7 @@ processButton.addEventListener('click', () => {
                     static_deobfuscate(ast);
                     removeSelfDefending(ast);
                     deControlFlowFlatten(ast);
-                    restoreLogicalExpression(ast);
+                    restoreLogicalAndConditionalExpression(ast);
                     static_deobfuscate(ast, {
                         rename: true,
                         hexadecimal_only: !checkAll,

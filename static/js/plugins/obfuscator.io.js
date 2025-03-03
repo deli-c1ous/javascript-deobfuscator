@@ -240,24 +240,45 @@ function deControlFlowFlatten(ast) {
     traverse(ast, visitor);
 }
 
-function restoreLogicalExpression(ast) {
+function restoreLogicalAndConditionalExpression(ast) {
     const visitor = {
-        LogicalExpression(path) {
-            const { container, key, parentPath } = path;
-            const { left, right, operator } = path.node;
-            if (parentPath.isExpressionStatement() || parentPath.isSequenceExpression()) {
-                const consequent = types.blockStatement([types.expressionStatement(right)]);
+        LogicalExpression: {
+            exit(path) {
+                const { container, key, parentPath } = path;
+                const { left, right, operator } = path.node;
+                const new_right = types.isIfStatement(right) ? right : types.expressionStatement(right);
+                const consequent = types.blockStatement([new_right]);
                 const alternate = types.blockStatement([]);
-                const new_if_statement = operator === '&&' ? types.ifStatement(left, consequent, alternate) : types.ifStatement(left, alternate, consequent);
+                const ifStatement = operator === '&&' ? types.ifStatement(left, consequent, alternate) : types.ifStatement(left, alternate, consequent);
+                if (parentPath.isExpressionStatement()) {
+                    parentPath.replaceInline(ifStatement);
+                } else if (parentPath.isSequenceExpression() || (parentPath.isConditionalExpression() && path.key !== 'test') || (parentPath.isLogicalExpression() && path.key === 'right')) {
+                    container[key] = ifStatement;
+                }
+            }
+        }
+    };
+    traverse(ast, visitor);
+
+    const visitor3 = {
+        ConditionalExpression(path) {
+            const { container, key, parentPath } = path;
+            const { test, consequent, alternate } = path.node;
+            if (parentPath.isExpressionStatement() || parentPath.isSequenceExpression()) {
+                const new_consequent = types.isIfStatement(consequent) ? consequent : types.expressionStatement(consequent);
+                const new_alternate = types.isIfStatement(alternate) ? alternate : types.expressionStatement(alternate);
+                const if_consequent = types.blockStatement([new_consequent]);
+                const if_alternate = types.blockStatement([new_alternate]);
+                const new_if_statement = types.ifStatement(test, if_consequent, if_alternate);
                 if (parentPath.isExpressionStatement()) {
                     parentPath.replaceInline(new_if_statement);
                 } else if (parentPath.isSequenceExpression()) {
                     container[key] = new_if_statement;
                 }
             }
-        },
+        }
     };
-    traverse(ast, visitor);
+    traverse(ast, visitor3);
 
     const visitor2 = {
         SequenceExpression(path) {
