@@ -8,31 +8,6 @@ function static_deobfuscate(ast, { rename = false, hexadecimal_only = true } = {
     let function_count = 0;
     let parameter_count = 0;
 
-    function evaluateAndReplace(path) {
-        const { confident, value } = path.evaluate();
-        if (confident) {
-            const old_node = path.node;
-            path.replaceInline(types.valueToNode(value));
-            if (path.type === old_node.type) {
-                path.skip();
-            }
-        }
-    }
-
-    function canEvaluate(path) {
-        if (path.isBinaryExpression() || path.isLogicalExpression()) {
-            return canEvaluate(path.get('left')) && canEvaluate(path.get('right'));
-        } else if (path.isUnaryExpression()) {
-            return canEvaluate(path.get('argument'));
-        } else if (path.isSequenceExpression()) {
-            return path.get('expressions').every(canEvaluate);
-        } else if (path.isConditionalExpression()) {
-            return canEvaluate(path.get('test')) && canEvaluate(path.get('consequent')) && canEvaluate(path.get('alternate'));
-        } else {
-            return !(path.isCallExpression() || path.isIdentifier() || path.isMemberExpression() || path.isAssignmentExpression() || path.isUpdateExpression());
-        }
-    }
-
     function isMeaningfulExpression(path) {
         if (path.isBinaryExpression()) {
             return isMeaningfulExpression(path.get('left')) || isMeaningfulExpression(path.get('right'));
@@ -71,19 +46,22 @@ function static_deobfuscate(ast, { rename = false, hexadecimal_only = true } = {
         },
         // 表达式计算
         'BinaryExpression|UnaryExpression'(path) {
-            if (canEvaluate(path)) {
-                evaluateAndReplace(path);
+            const { confident, value } = path.evaluate();
+            if (confident) {
+                const old_node = path.node;
+                path.replaceInline(types.valueToNode(value));
+                if (path.type === old_node.type) {
+                    path.skip();
+                }
             }
         },
         ConditionalExpression(path) {
-            if (canEvaluate(path.get('test'))) {
-                const { confident, value } = path.get('test').evaluate();
-                if (confident) {
-                    if (value) {
-                        path.replaceInline(path.node.consequent);
-                    } else {
-                        path.replaceInline(path.node.alternate);
-                    }
+            const { confident, value } = path.get('test').evaluate();
+            if (confident) {
+                if (value) {
+                    path.replaceInline(path.node.consequent);
+                } else {
+                    path.replaceInline(path.node.alternate);
                 }
             }
         },
@@ -101,16 +79,14 @@ function static_deobfuscate(ast, { rename = false, hexadecimal_only = true } = {
                 path.node.alternate = types.blockStatement([alternate]);
             }
             // 无效if语句还原
-            if (canEvaluate(path.get('test'))) {
-                const { confident, value } = path.get('test').evaluate();
-                if (confident) {
-                    if (value) {
-                        path.replaceInline(path.node.consequent.body);
-                    } else if (path.node.alternate) {
-                        path.replaceInline(path.node.alternate.body);
-                    } else {
-                        path.remove();
-                    }
+            const { confident, value } = path.get('test').evaluate();
+            if (confident) {
+                if (value) {
+                    path.replaceInline(path.node.consequent.body);
+                } else if (path.node.alternate) {
+                    path.replaceInline(path.node.alternate.body);
+                } else {
+                    path.remove();
                 }
             }
             // 无语句体的if语句还原

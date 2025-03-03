@@ -120,7 +120,7 @@ function restoreMemberExpression(ast) {
     const info_object_map = new Map();
     const visitor1 = {
         VariableDeclarator(path) {
-            if (/^[a-z]{5}$/i.test(path.node.init?.properties?.[0]?.key.value)) {
+            if (path.node.init?.properties?.every(prop => /^[a-z]{5}$/i.test(prop.key.value))) {
                 const info_object_name = path.node.id.name;
                 const info_object_properties = path.node.init.properties;
                 info_object_map.set(info_object_name, {
@@ -144,7 +144,7 @@ function restoreMemberExpression(ast) {
         CallExpression(path) {
             if (info_object_map.has(path.node.callee.object?.name)) {
                 const { info_object_properties } = info_object_map.get(path.node.callee.object.name);
-                const property = info_object_properties.find(prop => prop.key.value === path.node.callee.property.value);
+                const property = info_object_properties.find(prop => prop.key.value === (path.node.callee.property.value || path.node.callee.property.name));
                 const expression = property.value.body.body[0].argument;
                 let new_expression;
                 if (expression.type === 'BinaryExpression') {

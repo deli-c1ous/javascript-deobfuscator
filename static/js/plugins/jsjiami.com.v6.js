@@ -9,10 +9,10 @@ function handleArrayDeclaration_v6(ast) {
                 }).code;
                 path.remove();
             } else if (path.node.declarations.some(declarator => declarator.init?.value === 'jsjiami.com.v6')) {
-                const indentifier_name = path.node.declarations.find(declarator => declarator.init?.value === 'jsjiami.com.v6').id.name;
-                path.scope.getBinding(indentifier_name).constantViolations.forEach(path => {
-                    path.getStatementParent().remove();
+                path.node.declarations.forEach(declarator => {
+                    path.scope.getBinding(declarator.id.name).constantViolations.forEach(path => path.getStatementParent().remove());
                 });
+                const indentifier_name = path.node.declarations.find(declarator => declarator.init?.value === 'jsjiami.com.v6').id.name;
                 array_name = path.node.declarations.find(declarator => declarator.init?.elements?.[0]?.name === indentifier_name).id.name;
                 code_str = generate(path.node, {
                     compact: true,
