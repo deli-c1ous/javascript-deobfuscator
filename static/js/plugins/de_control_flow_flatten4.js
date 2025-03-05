@@ -45,9 +45,6 @@ function deControlFlowFlatten4(path) {
                     }
                 }
             }
-        } else if (types.isIfStatement(next)) {
-            const inner_new_body = wanderIfStatement(next);
-            new_body.push(...inner_new_body);
         } else {
             console.log(333);
         }
