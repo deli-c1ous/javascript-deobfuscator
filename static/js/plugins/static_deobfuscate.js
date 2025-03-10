@@ -24,6 +24,11 @@ function static_deobfuscate(ast, { rename = false, hexadecimal_only = true } = {
         }
     }
 
+    function isValidIdentifier(str) {
+        const identifierRegex = /^[$_\p{L}][$\p{L}\p{N}_]*$/u;
+        return identifierRegex.test(str);
+    }
+
     const visitor = {
         // 字符串还原
         StringLiteral(path) {
@@ -107,8 +112,8 @@ function static_deobfuscate(ast, { rename = false, hexadecimal_only = true } = {
         },
         // 标识符重命名
         Scope(path) {
+            path.scope.crawl();
             if (rename) {
-                path.scope.crawl();
                 for (const binding of Object.values(path.scope.bindings)) {
                     const identifier_name = binding.identifier.name;
                     if (hexadecimal_only && !/_0x|__Ox/.test(identifier_name)) {
@@ -161,7 +166,7 @@ function static_deobfuscate(ast, { rename = false, hexadecimal_only = true } = {
         // 方括号属性还原为点属性
         MemberExpression(path) {
             const { computed, property } = path.node;
-            if (computed === true && types.isStringLiteral(property)) {
+            if (computed === true && types.isStringLiteral(property) && isValidIdentifier(property.value)) {
                 path.node.computed = false;
                 path.node.property = types.identifier(property.value);
             }
