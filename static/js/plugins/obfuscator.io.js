@@ -120,7 +120,7 @@ function restoreMemberExpression(ast) {
     const info_object_map = new Map();
     const visitor1 = {
         VariableDeclarator(path) {
-            if (path.node.init?.properties?.every(prop => /^[a-z]{5}$/i.test(prop.key.value))) {
+            if (path.node.init?.properties?.length !== 0 && path.node.init?.properties?.every(prop => /^[a-z]{5}$/i.test(prop.key.value))) {
                 const info_object_name = path.node.id.name;
                 const info_object_properties = path.node.init.properties;
                 info_object_map.set(info_object_name, {
@@ -170,7 +170,7 @@ function removeSelfDefending(ast) {
     const visitor1 = {
         VariableDeclarator(path) {
             if (
-                path.node.init?.callee?.body?.body?.[0]?.declarations?.[0]?.init?.value === true ||
+                (path.node.init?.callee?.body?.body?.[0]?.declarations?.[0]?.init?.value === true && types.isFunctionExpression(path.node.init?.callee?.body?.body?.[1]?.argument)) ||
                 names_to_remove.includes(path.node.init?.callee?.name)
             ) {
                 names_to_remove.push(path.node.id.name);
@@ -188,29 +188,39 @@ function removeSelfDefending(ast) {
     };
     traverse(ast, visitor1);
 
+    const names_to_remove2 = [];
+
     const visitor2 = {
         FunctionDeclaration(path) {
             if (
-                types.isIfStatement(path.node.body.body[0]?.body?.body?.[0]) &&
-                types.isUpdateExpression(path.node.body.body[0]?.body?.body?.[1]?.expression?.arguments?.[0]) &&
+                types.isFunctionDeclaration(path.node.body.body[0]) &&
                 types.isTryStatement(path.node.body.body[1]) &&
+                types.isIfStatement(path.node.body.body[0]?.body?.body?.[0]) &&
+                path.node.body.body[0]?.body?.body?.[1]?.expression?.callee?.name === path.node.body.body[0]?.id?.name &&
+                types.isUpdateExpression(path.node.body.body[0]?.body?.body?.[1]?.expression?.arguments?.[0]) &&
                 path.node.body.body.length === 2
             ) {
-                path.remove();
-            }
-        },
-        CallExpression(path) {
-            if (
-                types.isVariableDeclaration(path.node.callee.body?.body?.[0]) &&
-                types.isTryStatement(path.node.callee.body?.body?.[1]) &&
-                path.node.callee.body?.body?.[2]?.expression?.callee?.property?.value === 'setInterval' &&
-                path.node.callee.body?.body?.length === 3
-            ) {
+                names_to_remove2.push(path.node.id.name);
                 path.remove();
             }
         }
     }
     traverse(ast, visitor2);
+
+    const visitor3 = {
+        CallExpression(path) {
+            if (
+                types.isVariableDeclaration(path.node.callee.body?.body?.[0]) &&
+                types.isTryStatement(path.node.callee.body?.body?.[1]) &&
+                path.node.callee.body?.body?.[2]?.expression?.callee?.property?.name === 'setInterval' &&
+                names_to_remove2.includes(path.node.callee.body?.body?.[2]?.expression?.arguments?.[0]?.name) &&
+                path.node.callee.body?.body?.length === 3
+            ) {
+                path.remove();
+            }
+        }
+    };
+    traverse(ast, visitor3);
 }
 
 function deControlFlowFlatten(ast) {
@@ -242,51 +252,39 @@ function deControlFlowFlatten(ast) {
 
 function restoreLogicalAndConditionalExpression(ast) {
     const visitor = {
-        LogicalExpression: {
-            exit(path) {
-                const { container, key, parentPath } = path;
-                const { left, right, operator } = path.node;
-                const new_right = types.isIfStatement(right) ? right : types.expressionStatement(right);
+        LogicalExpression(path) {
+            const { parentPath } = path;
+            const { left, right, operator } = path.node;
+            if (parentPath.isExpressionStatement()) {
+                const new_right = types.expressionStatement(right);
                 const consequent = types.blockStatement([new_right]);
                 const alternate = types.blockStatement([]);
-                const ifStatement = operator === '&&' ? types.ifStatement(left, consequent, alternate) : types.ifStatement(left, alternate, consequent);
+                const if_statement = operator === '&&' ? types.ifStatement(left, consequent, alternate) : types.ifStatement(left, alternate, consequent);
                 if (parentPath.isExpressionStatement()) {
-                    parentPath.replaceInline(ifStatement);
-                } else if (parentPath.isSequenceExpression() || (parentPath.isConditionalExpression() && path.key !== 'test') || (parentPath.isLogicalExpression() && path.key === 'right')) {
-                    container[key] = ifStatement;
+                    parentPath.replaceInline(if_statement);
                 }
+            }
+        },
+        ConditionalExpression(path) {
+            const { parentPath } = path;
+            const { test, consequent, alternate } = path.node;
+            if (parentPath.isExpressionStatement()) {
+                const new_consequent = types.expressionStatement(consequent);
+                const new_alternate = types.expressionStatement(alternate);
+                const if_consequent = types.blockStatement([new_consequent]);
+                const if_alternate = types.blockStatement([new_alternate]);
+                const if_statement = types.ifStatement(test, if_consequent, if_alternate);
+                if (parentPath.isExpressionStatement()) {
+                    parentPath.replaceInline(if_statement);
+                }
+            }
+        },
+        SequenceExpression(path) {
+            const { parentPath } = path;
+            if (parentPath.isExpressionStatement()) {
+                parentPath.replaceInline(path.node.expressions.map(types.expressionStatement));
             }
         }
     };
     traverse(ast, visitor);
-
-    const visitor3 = {
-        ConditionalExpression(path) {
-            const { container, key, parentPath } = path;
-            const { test, consequent, alternate } = path.node;
-            if (parentPath.isExpressionStatement() || parentPath.isSequenceExpression()) {
-                const new_consequent = types.isIfStatement(consequent) ? consequent : types.expressionStatement(consequent);
-                const new_alternate = types.isIfStatement(alternate) ? alternate : types.expressionStatement(alternate);
-                const if_consequent = types.blockStatement([new_consequent]);
-                const if_alternate = types.blockStatement([new_alternate]);
-                const new_if_statement = types.ifStatement(test, if_consequent, if_alternate);
-                if (parentPath.isExpressionStatement()) {
-                    parentPath.replaceInline(new_if_statement);
-                } else if (parentPath.isSequenceExpression()) {
-                    container[key] = new_if_statement;
-                }
-            }
-        }
-    };
-    traverse(ast, visitor3);
-
-    const visitor2 = {
-        SequenceExpression(path) {
-            const { parentPath } = path;
-            if (parentPath.isExpressionStatement()) {
-                parentPath.replaceInline(path.node.expressions.map(expr => types.isIfStatement(expr) ? expr : types.expressionStatement(expr)));
-            }
-        }
-    };
-    traverse(ast, visitor2);
 }

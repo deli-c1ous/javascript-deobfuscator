@@ -110,7 +110,7 @@ function static_deobfuscate(ast, { rename = false, hexadecimal_only = true } = {
                 }
             }
         },
-        // 标识符重命名
+        // 变量重命名
         Scope(path) {
             path.scope.crawl();
             if (rename) {
@@ -131,14 +131,13 @@ function static_deobfuscate(ast, { rename = false, hexadecimal_only = true } = {
         },
         // 逗号表达式还原
         SequenceExpression(path) {
-            if (path.parentPath.isExpressionStatement()) {
-                path.parentPath.replaceInline(path.node.expressions.map(types.expressionStatement));
-            } else if (path.parentPath.isReturnStatement()) {
-                path.parentPath.insertBefore(path.node.expressions.slice(0, -1).map(types.expressionStatement));
-                path.replaceInline(path.node.expressions[path.node.expressions.length - 1]);
-            } else if (path.key === 'test') {
-                path.getStatementParent().insertBefore(path.node.expressions.slice(0, -1).map(types.expressionStatement));
-                path.replaceInline(path.node.expressions[path.node.expressions.length - 1]);
+            const { parentPath } = path;
+            const { expressions } = path.node;
+            if (parentPath.isExpressionStatement()) {
+                parentPath.replaceInline(expressions.map(types.expressionStatement));
+            } else if (parentPath.isReturnStatement() || parentPath.isIfStatement()) {
+                parentPath.insertBefore(expressions.slice(0, -1).map(types.expressionStatement));
+                path.replaceInline(expressions[expressions.length - 1]);
             }
         },
         // 移除无效的表达式语句
@@ -154,23 +153,16 @@ function static_deobfuscate(ast, { rename = false, hexadecimal_only = true } = {
                 path.node.body = types.blockStatement([body]);
             }
         },
-        // 函数的变量声明还原为函数声明
-        VariableDeclarator(path) {
-            const { id, init } = path.node;
-            if (types.isFunctionExpression(init)) {
-                const function_declaration = types.functionDeclaration(id, init.params, init.body, init.generator, init.async);
-                path.parentPath.insertBefore(function_declaration);
-                path.remove();
+        // 方括号属性还原为点属性
+        MemberExpression: {
+            exit(path) {
+                const { computed, property } = path.node;
+                if (computed === true && types.isStringLiteral(property) && isValidIdentifier(property.value)) {
+                    path.node.computed = false;
+                    path.node.property = types.identifier(property.value);
+                }
             }
         },
-        // 方括号属性还原为点属性
-        MemberExpression(path) {
-            const { computed, property } = path.node;
-            if (computed === true && types.isStringLiteral(property) && isValidIdentifier(property.value)) {
-                path.node.computed = false;
-                path.node.property = types.identifier(property.value);
-            }
-        }
     };
     traverse(ast, visitor);
 }

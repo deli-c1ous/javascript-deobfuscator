@@ -14,8 +14,7 @@ const inputTab = document.querySelector('#input-tab');
 const outputTab = document.querySelector('#output-tab');
 const inputEditorElement = document.querySelector('#input-editor');
 const outputEditorElement = document.querySelector('#output-editor');
-const highlightToggleButton = document.querySelector('#highlight-toggle');
-const textElement = document.querySelector('#text');
+const renameAllCheckbox = document.querySelector('#rename-all-checkbox');
 const processButton = document.querySelector('#process-button');
 const copyPasteButton = document.querySelector('#copy-paste-button');
 
@@ -50,12 +49,6 @@ regions.forEach(region => {
             case 'obfuscator.io':
                 inputEditor.setValue(obfuscator_io_demo_code);
                 break;
-            case 'jsjiami.com.v6':
-                inputEditor.setValue(jsjiami_v6_demo_code);
-                break;
-            case 'jsjiami.com.v7':
-                inputEditor.setValue(jsjiami_v7_demo_code);
-                break;
             case 'controlFlowFlatten1':
                 inputEditor.setValue(control_flow_flatten_demo_code1);
                 break;
@@ -86,18 +79,15 @@ outputTab.addEventListener('click', () => {
     inputTab.classList.remove('active');
     outputTab.classList.add('active');
 });
-highlightToggleButton.addEventListener('change', () => {
-    textElement.textContent = highlightToggleButton.checked ? '全部' : '仅十六进制';
-});
 processButton.addEventListener('click', () => {
-    const checkAll = highlightToggleButton.checked;
+    const renameAll = renameAllCheckbox.checked;
     try {
         switch (nowActiveRegion.id) {
             case 'static-deobfuscate':
                 transform(ast => {
                     static_deobfuscate(ast, {
                         rename: true,
-                        hexadecimal_only: !checkAll,
+                        hexadecimal_only: !renameAll,
                     });
                 });
                 break;
@@ -118,7 +108,7 @@ processButton.addEventListener('click', () => {
                     restoreLogicalAndConditionalExpression(ast);
                     static_deobfuscate(ast, {
                         rename: true,
-                        hexadecimal_only: !checkAll,
+                        hexadecimal_only: !renameAll,
                     });
                 });
                 break;
@@ -128,7 +118,7 @@ processButton.addEventListener('click', () => {
                     deControlFlowFlatten(ast);
                     static_deobfuscate(ast, {
                         rename: true,
-                        hexadecimal_only: !checkAll,
+                        hexadecimal_only: !renameAll,
                     });
                 });
                 break;
@@ -145,7 +135,7 @@ processButton.addEventListener('click', () => {
                     traverse(ast, visitor1);
                     static_deobfuscate(ast, {
                         rename: true,
-                        hexadecimal_only: !checkAll,
+                        hexadecimal_only: !renameAll,
                     });
                 });
                 break;
@@ -172,7 +162,7 @@ processButton.addEventListener('click', () => {
                     traverse(ast, visitor2);
                     static_deobfuscate(ast, {
                         rename: true,
-                        hexadecimal_only: !checkAll,
+                        hexadecimal_only: !renameAll,
                     });
                 });
                 break;
@@ -189,7 +179,7 @@ processButton.addEventListener('click', () => {
                     traverse(ast, visitor);
                     static_deobfuscate(ast, {
                         rename: true,
-                        hexadecimal_only: !checkAll,
+                        hexadecimal_only: !renameAll,
                     });
                 });
                 break;

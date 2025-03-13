@@ -94,70 +94,25 @@ h1, h2 {
     background-color: #f0f0f0;
 }
 
-.toggle-switch {
-    margin: 15px 0;
+.checkbox-group {
     display: flex;
-    align-items: center; /* 垂直对齐 */
-    gap: 10px; /* 开关按钮和文字之间的间距 */
     justify-content: center; /* 水平居中 */
+    margin-bottom: 15px;
 }
 
-.switch {
-    position: relative;
-    display: inline-block;
-    width: 40px; /* 保持或调整宽度 */
-    height: 20px; /* 保持或调整高度 */
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    margin: 0 10px; /* 添加一些间距 */
 }
 
-.switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
+.checkbox {
+    margin-right: 5px;
 }
 
-.slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #ccc;
-    transition: 0.4s;
-    border-radius: 20px;
-}
-
-.slider:before {
-    position: absolute;
-    content: "";
-    height: 16px;
-    width: 16px;
-    left: 2px;
-    bottom: 2px;
-    background-color: white;
-    transition: 0.4s;
-    border-radius: 50%;
-}
-
-input:checked + .slider {
-    background-color: #a9a9f5;
-}
-
-input:checked + .slider:before {
-    transform: translateX(18px);
-}
-
-.toggle-switch span {
-    font-size: 20px;
-    font-weight: bold;
+.checkbox + span {
+    font-size: 16px;
     color: #333;
-}
-
-#text {
-    display: inline-block;
-    width: 100px; /* 设置固定宽度 */
-    color: #555;
-    font-size: 18px;
 }
 
 .button-group {
