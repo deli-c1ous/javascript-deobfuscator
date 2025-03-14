@@ -63,6 +63,20 @@ function static_deobfuscate(ast, { rename = false, hexadecimal_only = true } = {
                 } else {
                     path.replaceInline(path.node.alternate);
                 }
+            } else {
+                // 条件表达式还原为if语句
+                const { parentPath } = path;
+                const { test, consequent, alternate } = path.node;
+                if (parentPath.isExpressionStatement()) {
+                    const new_consequent = types.expressionStatement(consequent);
+                    const new_alternate = types.expressionStatement(alternate);
+                    const if_consequent = types.blockStatement([new_consequent]);
+                    const if_alternate = types.blockStatement([new_alternate]);
+                    const if_statement = types.ifStatement(test, if_consequent, if_alternate);
+                    if (parentPath.isExpressionStatement()) {
+                        parentPath.replaceInline(if_statement);
+                    }
+                }
             }
         },
         // 移除空语句
@@ -152,9 +166,23 @@ function static_deobfuscate(ast, { rename = false, hexadecimal_only = true } = {
         MemberExpression: {
             exit(path) {
                 const { computed, property } = path.node;
-                if (computed === true && types.isStringLiteral(property) && types.isValidIdentifier(property.value)) {
+                if (computed && types.isStringLiteral(property) && types.isValidIdentifier(property.value)) {
                     path.node.computed = false;
                     path.node.property = types.identifier(property.value);
+                }
+            }
+        },
+        // 逻辑表达式还原为if语句
+        LogicalExpression(path) {
+            const { parentPath } = path;
+            const { left, right, operator } = path.node;
+            if (parentPath.isExpressionStatement()) {
+                const new_right = types.expressionStatement(right);
+                const consequent = types.blockStatement([new_right]);
+                const alternate = types.blockStatement([]);
+                const if_statement = operator === '&&' ? types.ifStatement(left, consequent, alternate) : types.ifStatement(left, alternate, consequent);
+                if (parentPath.isExpressionStatement()) {
+                    parentPath.replaceInline(if_statement);
                 }
             }
         },

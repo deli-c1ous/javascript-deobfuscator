@@ -105,7 +105,6 @@ processButton.addEventListener('click', () => {
                     static_deobfuscate(ast);
                     removeSelfDefending(ast);
                     deControlFlowFlatten(ast);
-                    restoreLogicalAndConditionalExpression(ast);
                     static_deobfuscate(ast, {
                         rename: true,
                         hexadecimal_only: !renameAll,
