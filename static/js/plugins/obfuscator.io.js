@@ -142,19 +142,22 @@ function restoreMemberExpression(ast) {
             }
         },
         CallExpression(path) {
-            if (info_object_map.has(path.node.callee.object?.name)) {
-                const { info_object_properties } = info_object_map.get(path.node.callee.object.name);
-                const property = info_object_properties.find(prop => prop.key.value === (path.node.callee.property.value || path.node.callee.property.name));
-                const expression = property.value.body.body[0].argument;
-                let new_expression;
-                if (expression.type === 'BinaryExpression') {
-                    new_expression = types.binaryExpression(expression.operator, path.node.arguments[0], path.node.arguments[1]);
-                } else if (expression.type === 'CallExpression') {
-                    new_expression = types.callExpression(path.node.arguments[0], path.node.arguments.slice(1));
+            const { callee } = path.node;
+            if (info_object_map.has(callee.object?.name)) {
+                const { info_object_properties } = info_object_map.get(callee.object.name);
+                const property = info_object_properties.find(prop => prop.key.value === (callee.property.value || callee.property.name));
+                const expr = property.value.body.body[0].argument;
+                let new_expr;
+                if (expr.type === 'BinaryExpression') {
+                    new_expr = types.binaryExpression(expr.operator, path.node.arguments[0], path.node.arguments[1]);
+                } else if (expr.type === 'CallExpression') {
+                    new_expr = types.callExpression(path.node.arguments[0], path.node.arguments.slice(1));
+                } else if (expr.type === 'LogicalExpression') {
+                    new_expr = types.logicalExpression(expr.operator, path.node.arguments[0], path.node.arguments[1]);
                 } else {
-                    console.log(666)
+                    console.log(888)
                 }
-                path.replaceInline(new_expression);
+                path.replaceInline(new_expr);
             }
         }
     };

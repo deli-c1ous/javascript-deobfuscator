@@ -24,11 +24,6 @@ function static_deobfuscate(ast, { rename = false, hexadecimal_only = true } = {
         }
     }
 
-    function isValidIdentifier(str) {
-        const identifierRegex = /^[$_\p{L}][$\p{L}\p{N}_]*$/u;
-        return identifierRegex.test(str);
-    }
-
     const visitor = {
         // 字符串还原
         StringLiteral(path) {
@@ -157,7 +152,7 @@ function static_deobfuscate(ast, { rename = false, hexadecimal_only = true } = {
         MemberExpression: {
             exit(path) {
                 const { computed, property } = path.node;
-                if (computed === true && types.isStringLiteral(property) && isValidIdentifier(property.value)) {
+                if (computed === true && types.isStringLiteral(property) && types.isValidIdentifier(property.value)) {
                     path.node.computed = false;
                     path.node.property = types.identifier(property.value);
                 }
