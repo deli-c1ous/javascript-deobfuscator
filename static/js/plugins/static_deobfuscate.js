@@ -3,7 +3,7 @@ const traverse = Babel.packages.traverse.default;
 const parse = Babel.packages.parser.parse;
 const generate = Babel.packages.generator.default;
 
-function static_deobfuscate(ast, { rename = false, hexadecimal_only = true } = {}) {
+function static_deobfuscate(ast, { hexadecimal_only = true } = {}) {
     let variable_count = 0;
     let function_count = 0;
     let parameter_count = 0;
@@ -19,8 +19,10 @@ function static_deobfuscate(ast, { rename = false, hexadecimal_only = true } = {
             return isMeaningfulExpression(path.get('left')) || isMeaningfulExpression(path.get('right'));
         } else if (path.isConditionalExpression()) {
             return isMeaningfulExpression(path.get('test')) || isMeaningfulExpression(path.get('consequent')) || isMeaningfulExpression(path.get('alternate'));
+        } else if (path.isMemberExpression()) {
+            return isMeaningfulExpression(path.get('object')) || isMeaningfulExpression(path.get('property'));
         } else {
-            return path.isCallExpression() || path.isAssignmentExpression() || path.isUpdateExpression();
+            return path.isCallExpression() || path.isAssignmentExpression() || path.isUpdateExpression() || path.isNewExpression();
         }
     }
 
@@ -122,19 +124,17 @@ function static_deobfuscate(ast, { rename = false, hexadecimal_only = true } = {
         // 变量重命名
         Scope(path) {
             path.scope.crawl();
-            if (rename) {
-                for (const binding of Object.values(path.scope.bindings)) {
-                    const identifier_name = binding.identifier.name;
-                    if (hexadecimal_only && !/_0x|__Ox/.test(identifier_name)) {
-                        continue;
-                    }
-                    if (binding.kind === 'var' || binding.kind === 'let' || binding.kind === 'const') {
-                        path.scope.rename(identifier_name, `v${variable_count++}`);
-                    } else if (binding.kind === 'hoisted' || binding.kind === 'local') {
-                        path.scope.rename(identifier_name, `f${function_count++}`);
-                    } else if (binding.kind === 'param') {
-                        path.scope.rename(identifier_name, `p${parameter_count++}`);
-                    }
+            for (const binding of Object.values(path.scope.bindings)) {
+                const var_name = binding.identifier.name;
+                if (hexadecimal_only && !/_0x|__Ox/.test(var_name)) {
+                    continue;
+                }
+                if (binding.kind === 'var' || binding.kind === 'let' || binding.kind === 'const') {
+                    path.scope.rename(var_name, `v${variable_count++}`);
+                } else if (binding.kind === 'hoisted' || binding.kind === 'local') {
+                    path.scope.rename(var_name, `f${function_count++}`);
+                } else if (binding.kind === 'param') {
+                    path.scope.rename(var_name, `p${parameter_count++}`);
                 }
             }
         },
@@ -186,6 +186,12 @@ function static_deobfuscate(ast, { rename = false, hexadecimal_only = true } = {
                 }
             }
         },
+        ObjectProperty(path) {
+            const { key, computed } = path.node;
+            if (computed && types.isLiteral(key)) {
+                path.node.computed = false;
+            }
+        }
     };
     traverse(ast, visitor);
 }

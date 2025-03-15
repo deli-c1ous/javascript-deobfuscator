@@ -86,7 +86,6 @@ processButton.addEventListener('click', () => {
             case 'static-deobfuscate':
                 transform(ast => {
                     static_deobfuscate(ast, {
-                        rename: true,
                         hexadecimal_only: !renameAll,
                     });
                 });
@@ -106,7 +105,6 @@ processButton.addEventListener('click', () => {
                     removeSelfDefending(ast);
                     deControlFlowFlatten(ast);
                     static_deobfuscate(ast, {
-                        rename: true,
                         hexadecimal_only: !renameAll,
                     });
                 });
@@ -116,7 +114,6 @@ processButton.addEventListener('click', () => {
                     static_deobfuscate(ast);
                     deControlFlowFlatten(ast);
                     static_deobfuscate(ast, {
-                        rename: true,
                         hexadecimal_only: !renameAll,
                     });
                 });
@@ -133,7 +130,6 @@ processButton.addEventListener('click', () => {
                     };
                     traverse(ast, visitor1);
                     static_deobfuscate(ast, {
-                        rename: true,
                         hexadecimal_only: !renameAll,
                     });
                 });
@@ -160,7 +156,6 @@ processButton.addEventListener('click', () => {
                     }
                     traverse(ast, visitor2);
                     static_deobfuscate(ast, {
-                        rename: true,
                         hexadecimal_only: !renameAll,
                     });
                 });
@@ -177,7 +172,6 @@ processButton.addEventListener('click', () => {
                     };
                     traverse(ast, visitor);
                     static_deobfuscate(ast, {
-                        rename: true,
                         hexadecimal_only: !renameAll,
                     });
                 });
