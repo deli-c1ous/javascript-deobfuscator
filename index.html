@@ -20,10 +20,10 @@
 
         <h2>反控制流平坦化</h2>
         <div class="region-group">
-            <div class="region" id="controlFlowFlatten1">while...switch...</div>
-            <div class="region" id="controlFlowFlatten2">for...switch...</div>
-            <div class="region" id="controlFlowFlatten3">逻辑表达式+逗号表达式</div>
-            <div class="region" id="controlFlowFlatten4">for...if...else...</div>
+            <div class="region" id="while-switch">while...switch...</div>
+            <div class="region" id="for-switch">for...switch...</div>
+            <div class="region" id="logical-sequence-expression">逻辑表达式+逗号表达式</div>
+            <div class="region" id="for-if-else">for...if...else...</div>
         </div>
 
         <div class="tab-container">
@@ -49,9 +49,10 @@
     <script src="static/js/main.js" type="module"></script>
     <script src="static/js/plugins/static_deobfuscate.js"></script>
     <script src="static/js/plugins/obfuscator.io.js"></script>
-    <script src="static/js/plugins/de_control_flow_flatten2.js"></script>
-    <script src="static/js/plugins/de_control_flow_flatten3.js"></script>
-    <script src="static/js/plugins/de_control_flow_flatten4.js"></script>
+    <script src="static/js/plugins/restore_while_switch.js"></script>
+    <script src="static/js/plugins/restore_for_switch.js"></script>
+    <script src="static/js/plugins/restore_logical_sequence_expression.js"></script>
+    <script src="static/js/plugins/restore_for_if_else.js"></script>
     <script src="static/js/page.js" type="module"></script>
     <script src="static/js/utils.js" type="module"></script>
 </body>

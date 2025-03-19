@@ -1,13 +1,12 @@
 import {
-    static_deobfuscate_demo_code,
-    obfuscator_io_demo_code,
-    control_flow_flatten_demo_code1,
-    control_flow_flatten_demo_code2,
-    control_flow_flatten_demo_code3,
-    control_flow_flatten_demo_code4,
+    static_deobfuscate_example,
+    obfuscator_io_example,
+    while_switch_example,
+    for_if_else_example,
+    for_switch_example,
+    logical_sequence_expression_example,
 } from "./main.js";
 import { transform } from "./utils.js";
-
 
 const regions = document.querySelectorAll('.region');
 const inputTab = document.querySelector('#input-tab');
@@ -20,7 +19,7 @@ const copyPasteButton = document.querySelector('#copy-paste-button');
 
 let nowActiveRegion = regions[0];
 const inputEditor = CodeMirror(inputEditorElement, {
-    value: static_deobfuscate_demo_code,
+    value: static_deobfuscate_example,
     mode: 'javascript',
     theme: 'default',
     lineNumbers: true,
@@ -44,22 +43,22 @@ regions.forEach(region => {
 
         switch (nowActiveRegion.id) {
             case 'static-deobfuscate':
-                inputEditor.setValue(static_deobfuscate_demo_code);
+                inputEditor.setValue(static_deobfuscate_example);
                 break;
             case 'obfuscator.io':
-                inputEditor.setValue(obfuscator_io_demo_code);
+                inputEditor.setValue(obfuscator_io_example);
                 break;
-            case 'controlFlowFlatten1':
-                inputEditor.setValue(control_flow_flatten_demo_code1);
+            case 'while-switch':
+                inputEditor.setValue(while_switch_example);
                 break;
-            case 'controlFlowFlatten2':
-                inputEditor.setValue(control_flow_flatten_demo_code2);
+            case 'for-switch':
+                inputEditor.setValue(for_switch_example);
                 break;
-            case 'controlFlowFlatten3':
-                inputEditor.setValue(control_flow_flatten_demo_code3);
+            case 'logical-sequence-expression':
+                inputEditor.setValue(logical_sequence_expression_example);
                 break;
-            case 'controlFlowFlatten4':
-                inputEditor.setValue(control_flow_flatten_demo_code4);
+            case 'for-if-else':
+                inputEditor.setValue(for_if_else_example);
                 break;
         }
         inputTab.click();
@@ -85,95 +84,46 @@ processButton.addEventListener('click', () => {
         switch (nowActiveRegion.id) {
             case 'static-deobfuscate':
                 transform(ast => {
-                    static_deobfuscate(ast, {
-                        hexadecimal_only: !renameAll,
-                    });
+                    static_deobfuscate(ast);
+                    rename_var_func_param(ast, { hexadecimal_only: !renameAll });
                 });
                 break;
             case 'obfuscator.io':
                 transform(ast => {
-                    static_deobfuscate(ast);
-                    const { return_array_function_name, code_str: code_str1 } = handleReturnArrayFunction(ast);
-                    const {
-                        decrypt_string_function_names,
-                        code_str: code_str2
-                    } = handleDecryptStringFunctions(ast, return_array_function_name);
-                    const code_str3 = handleChangeArrayIIFE(ast, return_array_function_name)
-                    restoreCallExpression(ast, decrypt_string_function_names, code_str1, code_str2, code_str3);
-                    restoreMemberExpression(ast);
-                    static_deobfuscate(ast);
-                    removeSelfDefending(ast);
-                    deControlFlowFlatten(ast);
-                    static_deobfuscate(ast, {
-                        hexadecimal_only: !renameAll,
-                    });
+                    obfuscator_io_deobfuscate(ast);
+                    rename_var_func_param(ast, { hexadecimal_only: !renameAll });
                 });
                 break;
-            case 'controlFlowFlatten1':
+            case 'while-switch':
                 transform(ast => {
                     static_deobfuscate(ast);
-                    deControlFlowFlatten(ast);
-                    static_deobfuscate(ast, {
-                        hexadecimal_only: !renameAll,
-                    });
+                    restoreWhileSwitch(ast);
+                    static_deobfuscate(ast);
+                    rename_var_func_param(ast, { hexadecimal_only: !renameAll });
                 });
                 break;
-            case 'controlFlowFlatten2':
+            case 'for-switch':
                 transform(ast => {
                     static_deobfuscate(ast);
-                    const visitor1 = {
-                        ForStatement(path) {
-                            if (path.get('body.body').length === 1 && path.get('body.body.0').isSwitchStatement()) {
-                                deControlFlowFlatten2(path);
-                            }
-                        }
-                    };
-                    traverse(ast, visitor1);
-                    static_deobfuscate(ast, {
-                        hexadecimal_only: !renameAll,
-                    });
+                    restoreForSwitch(ast);
+                    static_deobfuscate(ast);
+                    rename_var_func_param(ast, { hexadecimal_only: !renameAll });
                 });
                 break;
-            case 'controlFlowFlatten3':
+            case 'logical-sequence-expression':
                 transform(ast => {
                     static_deobfuscate(ast);
-                    const visitor = {
-                        LogicalExpression: {
-                            exit(path) {
-                                if (path.key !== 'test') {
-                                    deControlFlowFlatten3(path);
-                                }
-                            }
-                        }
-                    };
-                    traverse(ast, visitor);
-                    const visitor2 = {
-                        SequenceExpression(path) {
-                            if (path.parentPath.isExpressionStatement()) {
-                                path.parentPath.replaceInline(path.node.expressions.map(expression => types.isExpression(expression) ? types.expressionStatement(expression) : expression));
-                            }
-                        }
-                    }
-                    traverse(ast, visitor2);
-                    static_deobfuscate(ast, {
-                        hexadecimal_only: !renameAll,
-                    });
+                    restoreLogicalSequenceExpression(ast);
+                    static_deobfuscate(ast);
+                    rename_var_func_param(ast, { hexadecimal_only: !renameAll });
                 });
                 break;
-            case 'controlFlowFlatten4':
+            case 'for-if-else':
                 transform(ast => {
                     static_deobfuscate(ast);
-                    const visitor = {
-                        ForStatement(path) {
-                            if (path.get('body.body').length === 1 && path.get('body.body.0').isIfStatement()) {
-                                deControlFlowFlatten4(path);
-                            }
-                        }
-                    };
-                    traverse(ast, visitor);
-                    static_deobfuscate(ast, {
-                        hexadecimal_only: !renameAll,
-                    });
+                    restoreForIfElse(ast);
+                    static_deobfuscate(ast);
+                    rename_var_func_param(ast, { hexadecimal_only: !renameAll });
                 });
                 break;
         }

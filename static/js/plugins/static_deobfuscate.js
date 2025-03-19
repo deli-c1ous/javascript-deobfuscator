@@ -3,11 +3,7 @@ const traverse = Babel.packages.traverse.default;
 const parse = Babel.packages.parser.parse;
 const generate = Babel.packages.generator.default;
 
-function static_deobfuscate(ast, { hexadecimal_only = true } = {}) {
-    let variable_count = 0;
-    let function_count = 0;
-    let parameter_count = 0;
-
+function static_deobfuscate(ast) {
     function isMeaningfulExpression(path) {
         if (path.isBinaryExpression()) {
             return isMeaningfulExpression(path.get('left')) || isMeaningfulExpression(path.get('right'));
@@ -74,9 +70,25 @@ function static_deobfuscate(ast, { hexadecimal_only = true } = {}) {
                     const new_alternate = types.expressionStatement(alternate);
                     const if_consequent = types.blockStatement([new_consequent]);
                     const if_alternate = types.blockStatement([new_alternate]);
-                    const if_statement = types.ifStatement(test, if_consequent, if_alternate);
-                    if (parentPath.isExpressionStatement()) {
-                        parentPath.replaceInline(if_statement);
+                    const if_stmt = types.ifStatement(test, if_consequent, if_alternate);
+                    parentPath.replaceInline(if_stmt);
+                } else if (parentPath.isReturnStatement()) {
+                    const new_consequent = types.returnStatement(consequent);
+                    const new_alternate = types.returnStatement(alternate);
+                    const if_consequent = types.blockStatement([new_consequent]);
+                    const if_alternate = types.blockStatement([new_alternate]);
+                    const if_stmt = types.ifStatement(test, if_consequent, if_alternate);
+                    parentPath.replaceInline(if_stmt);
+                } else if (parentPath.isAssignmentExpression()) {
+                    const { parentPath: grandParentPath } = parentPath;
+                    const { operator, left } = parentPath.node;
+                    if (grandParentPath.isExpressionStatement()) {
+                        const new_consequent = types.expressionStatement(types.assignmentExpression(operator, left, consequent));
+                        const new_alternate = types.expressionStatement(types.assignmentExpression(operator, left, alternate));
+                        const if_consequent = types.blockStatement([new_consequent]);
+                        const if_alternate = types.blockStatement([new_alternate]);
+                        const if_stmt = types.ifStatement(test, if_consequent, if_alternate);
+                        grandParentPath.replaceInline(if_stmt);
                     }
                 }
             }
@@ -121,23 +133,6 @@ function static_deobfuscate(ast, { hexadecimal_only = true } = {}) {
                 }
             }
         },
-        // 变量重命名
-        Scope(path) {
-            path.scope.crawl();
-            for (const binding of Object.values(path.scope.bindings)) {
-                const var_name = binding.identifier.name;
-                if (hexadecimal_only && !/_0x|__Ox/.test(var_name)) {
-                    continue;
-                }
-                if (binding.kind === 'var' || binding.kind === 'let' || binding.kind === 'const') {
-                    path.scope.rename(var_name, `v${variable_count++}`);
-                } else if (binding.kind === 'hoisted' || binding.kind === 'local') {
-                    path.scope.rename(var_name, `f${function_count++}`);
-                } else if (binding.kind === 'param') {
-                    path.scope.rename(var_name, `p${parameter_count++}`);
-                }
-            }
-        },
         // 逗号表达式还原
         SequenceExpression(path) {
             const { parentPath } = path;
@@ -172,24 +167,37 @@ function static_deobfuscate(ast, { hexadecimal_only = true } = {}) {
                 }
             }
         },
-        // 逻辑表达式还原为if语句
-        LogicalExpression(path) {
-            const { parentPath } = path;
-            const { left, right, operator } = path.node;
-            if (parentPath.isExpressionStatement()) {
-                const new_right = types.expressionStatement(right);
-                const consequent = types.blockStatement([new_right]);
-                const alternate = types.blockStatement([]);
-                const if_statement = operator === '&&' ? types.ifStatement(left, consequent, alternate) : types.ifStatement(left, alternate, consequent);
-                if (parentPath.isExpressionStatement()) {
-                    parentPath.replaceInline(if_statement);
-                }
-            }
-        },
+        // 方括号属性还原
         ObjectProperty(path) {
             const { key, computed } = path.node;
             if (computed && types.isLiteral(key)) {
                 path.node.computed = false;
+            }
+        }
+    };
+    traverse(ast, visitor);
+}
+
+function rename_var_func_param(ast, { hexadecimal_only = true } = {}) {
+    let var_count = 0;
+    let func_count = 0;
+    let param_count = 0;
+
+    const visitor = {
+        Scope(path) {
+            path.scope.crawl();
+            for (const binding of Object.values(path.scope.bindings)) {
+                const var_name = binding.identifier.name;
+                if (hexadecimal_only && !/_0x|__Ox/.test(var_name)) {
+                    continue;
+                }
+                if (binding.kind === 'var' || binding.kind === 'let' || binding.kind === 'const') {
+                    path.scope.rename(var_name, `v${var_count++}`);
+                } else if (binding.kind === 'hoisted' || binding.kind === 'local') {
+                    path.scope.rename(var_name, `f${func_count++}`);
+                } else if (binding.kind === 'param') {
+                    path.scope.rename(var_name, `p${param_count++}`);
+                }
             }
         }
     };

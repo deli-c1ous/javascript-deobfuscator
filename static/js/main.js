@@ -6,25 +6,25 @@ async function fetchCode(filepath) {
 const filepaths = [
     'static_deobfuscate.js',
     'obfuscator.io.js',
-    'control_flow_flatten1.js',
-    'control_flow_flatten2.js',
-    'control_flow_flatten3.js',
-    'control_flow_flatten4.js',
+    'while_switch.js',
+    'for_switch.js',
+    'logical_sequence_expression.js',
+    'for_if_else.js',
 ];
 const [
-    static_deobfuscate_demo_code,
-    obfuscator_io_demo_code,
-    control_flow_flatten_demo_code1,
-    control_flow_flatten_demo_code2,
-    control_flow_flatten_demo_code3,
-    control_flow_flatten_demo_code4,
-] = await Promise.all(filepaths.map(filepath => fetchCode(`static/js/demo_code/${filepath}`)));
+    static_deobfuscate_example,
+    obfuscator_io_example,
+    while_switch_example,
+    for_switch_example,
+    logical_sequence_expression_example,
+    for_if_else_example,
+] = await Promise.all(filepaths.map(filepath => fetchCode(`static/js/example/${filepath}`)));
 
 export {
-    static_deobfuscate_demo_code,
-    obfuscator_io_demo_code,
-    control_flow_flatten_demo_code1,
-    control_flow_flatten_demo_code2,
-    control_flow_flatten_demo_code3,
-    control_flow_flatten_demo_code4,
+    static_deobfuscate_example,
+    obfuscator_io_example,
+    while_switch_example,
+    for_switch_example,
+    logical_sequence_expression_example,
+    for_if_else_example,
 };

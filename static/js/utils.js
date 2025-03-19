@@ -1,6 +1,5 @@
 import { inputEditor, outputEditor } from "./page.js";
 
-
 function transform(callback) {
     const code = inputEditor.getValue();
     const ast = parse(code);
