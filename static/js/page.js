@@ -91,7 +91,6 @@ processButton.addEventListener('click', () => {
             case 'obfuscator.io':
                 transform(ast => {
                     obfuscator_io_deobfuscate(ast);
-                    rename_var_func_param(ast, { hexadecimal_only: !renameAll });
                 });
                 break;
             case 'while-switch':
