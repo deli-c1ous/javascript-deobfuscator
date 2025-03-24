@@ -1,5 +1,5 @@
 function findReturnStringArrayFunc(ast) {
-    let return_string_array_func_name, code;
+    let return_string_array_func_name;
 
     const visitor = {
         FunctionDeclaration(path) {
@@ -25,18 +25,19 @@ function findReturnStringArrayFunc(ast) {
                 types.isIdentifier(body.body[2].argument.callee, { name: id.name })
             ) {
                 return_string_array_func_name = id.name;
-                code = generate(path.node, { compact: true }).code;
+                const code = generate(path.node, { compact: true }).code;
+                (0, eval)(code);
                 path.remove();
             }
         },
     }
     traverse(ast, visitor);
 
-    return { return_string_array_func_name, code };
+    return { return_string_array_func_name };
 }
 
 function findDecryptStringFunc(ast, return_string_array_func_name) {
-    let decrypt_string_func_names = [], code = '';
+    let decrypt_string_func_names = [];
 
     const visitor = {
         FunctionDeclaration(path) {
@@ -77,14 +78,15 @@ function findDecryptStringFunc(ast, return_string_array_func_name) {
                 types.isIdentifier(body.body[2].argument.arguments[1], { name: params[1].name })
             ) {
                 decrypt_string_func_names.push(id.name);
-                code += generate(path.node, { compact: true }).code;
+                const code = generate(path.node, { compact: true }).code;
+                (0, eval)(code);
                 path.remove();
             }
         },
     }
     traverse(ast, visitor);
 
-    return { decrypt_string_func_names, code };
+    return { decrypt_string_func_names };
 }
 
 function findDecryptStringFuncProxy(ast, decrypt_string_func_names) {
@@ -124,7 +126,7 @@ function findDecryptStringFuncProxy(ast, decrypt_string_func_names) {
         }
     }
 
-    let decrypt_string_func_proxy_names = [], code = '', decrypt_string_func_proxy_paths = [];
+    let decrypt_string_func_proxy_names = [], decrypt_string_func_proxy_paths = [];
 
     const visitor = {
         FunctionDeclaration(path) {
@@ -138,8 +140,9 @@ function findDecryptStringFuncProxy(ast, decrypt_string_func_names) {
             ) {
                 if (isDecryptStringFunctionProxyFunc(path)) {
                     decrypt_string_func_proxy_names.push(id.name);
-                    code += generate(path.node, { compact: true }).code;
                     decrypt_string_func_proxy_paths.push(path);
+                    const code = generate(path.node, { compact: true }).code;
+                    (0, eval)(code);
                 }
             }
         },
@@ -148,8 +151,9 @@ function findDecryptStringFuncProxy(ast, decrypt_string_func_names) {
             if (types.isIdentifier(init)) {
                 if (isDecryptStringFunctionProxyVar(path)) {
                     decrypt_string_func_proxy_names.push(id.name);
-                    code += generate(path.node, { compact: true }).code + ';';
                     decrypt_string_func_proxy_paths.push(path);
+                    const code = generate(path.node, { compact: true }).code;
+                    (0, eval)(code);
                 }
             }
         }
@@ -158,12 +162,10 @@ function findDecryptStringFuncProxy(ast, decrypt_string_func_names) {
 
     decrypt_string_func_proxy_paths.forEach(path => path.remove());
 
-    return { decrypt_string_func_proxy_names, code };
+    return { decrypt_string_func_proxy_names };
 }
 
 function findChangeStringArrayIIFE(ast, return_string_array_func_name) {
-    let code;
-
     const visitor = {
         ExpressionStatement(path) {
             const { expression } = path.node;
@@ -216,14 +218,13 @@ function findChangeStringArrayIIFE(ast, return_string_array_func_name) {
                 types.isIdentifier(expression.callee.body.body[1].body.body[0].handler.body.body[0].expression.arguments[0].callee.object, { name: expression.callee.body.body[0].declarations[0].id.name }) &&
                 types.isIdentifier(expression.callee.body.body[1].body.body[0].handler.body.body[0].expression.arguments[0].callee.property, { name: 'shift' })
             ) {
-                code = generate(path.node, { compact: true }).code;
+                const code = generate(path.node, { compact: true }).code;
+                (0, eval)(code);
                 path.remove();
             }
         }
     }
     traverse(ast, visitor);
-
-    return code;
 }
 
 function restoreCallExpression(ast, decrypt_string_func_aliases) {
@@ -241,7 +242,7 @@ function restoreCallExpression(ast, decrypt_string_func_aliases) {
 }
 
 function findDispatcherObject(ast) {
-    let dispatcher_object_names = [], code = '', dispatcher_object_paths = [];
+    let dispatcher_object_names = [], dispatcher_object_paths = [];
 
     const visitor = {
         VariableDeclarator(path) {
@@ -253,15 +254,19 @@ function findDispatcherObject(ast) {
                 init.properties.every(prop => types.isStringLiteral(prop.key)) &&
                 init.properties.every(prop => /^[a-z]{5}$/i.test(prop.key.value))
             ) {
-                dispatcher_object_names.push(id.name);
-                code += generate(path.node, { compact: true }).code + ';';
-                dispatcher_object_paths.push(path);
+                try {
+                    const code = generate(path.node, { compact: true }).code;
+                    (0, eval)(code);
+                    dispatcher_object_names.push(id.name);
+                    dispatcher_object_paths.push(path);
+                } catch {
+                }
             }
         }
     };
     traverse(ast, visitor);
 
-    return { dispatcher_object_names, code, dispatcher_object_paths };
+    return { dispatcher_object_names, dispatcher_object_paths };
 }
 
 function restoreMemberExpression(ast, dispatcher_object_names, dispatcher_object_paths) {
@@ -291,6 +296,7 @@ function restoreMemberExpression(ast, dispatcher_object_names, dispatcher_object
                 const dispatcher_object_path = dispatcher_object_paths.find(path => path.node.id.name === object_name);
                 const properties = dispatcher_object_path.node.init.properties;
                 const property = properties.find(prop => prop.key.value === property_name);
+                console.assert(property.value.body.body.length === 1);
                 types.assertReturnStatement(property.value.body.body[0]);
                 const expr = property.value.body.body[0].argument;
                 let new_expr;
@@ -493,16 +499,11 @@ function restoreLogicalAndConditionalExpression(ast) {
 
 function obfuscator_io_deobfuscate(ast) {
     static_deobfuscate(ast);
-    const { return_string_array_func_name, code: code1 } = findReturnStringArrayFunc(ast);
-    (0, eval)(code1);
-    const { decrypt_string_func_names, code: code2 } = findDecryptStringFunc(ast, return_string_array_func_name);
-    (0, eval)(code2);
-    const { decrypt_string_func_proxy_names, code: code3 } = findDecryptStringFuncProxy(ast, decrypt_string_func_names);
-    (0, eval)(code3);
-    const code4 = findChangeStringArrayIIFE(ast, return_string_array_func_name);
-    (0, eval)(code4);
-    const { dispatcher_object_names, code: code5, dispatcher_object_paths } = findDispatcherObject(ast);
-    (0, eval)(code5);
+    const { return_string_array_func_name } = findReturnStringArrayFunc(ast);
+    const { decrypt_string_func_names } = findDecryptStringFunc(ast, return_string_array_func_name);
+    const { decrypt_string_func_proxy_names } = findDecryptStringFuncProxy(ast, decrypt_string_func_names);
+    findChangeStringArrayIIFE(ast, return_string_array_func_name);
+    const { dispatcher_object_names, dispatcher_object_paths } = findDispatcherObject(ast);
     const decrypt_string_func_aliases = [...decrypt_string_func_names, ...decrypt_string_func_proxy_names];
     restoreCallExpression(ast, decrypt_string_func_aliases);
     static_deobfuscate(ast);
