@@ -69,14 +69,13 @@ function restoreForIfElse(ast) {
                 const new_body = [];
                 const { test, init } = path.node;
                 control_var_name = test.name;
-                const var_declaration = init;
-                const declarators = var_declaration.declarations.filter(declarator => declarator.id.name !== control_var_name);
-                if (declarators.length > 0) {
-                    const new_var_declaration = types.variableDeclaration(var_declaration.kind, declarators);
-                    new_body.push(new_var_declaration);
+                if (init.declarations[0].id.name !== control_var_name) {
+                    new_body.push(init);
                 }
-                const control_var_declaration_code = path.scope.getBinding(control_var_name).path.toString();
+                const binding = path.scope.getBinding(control_var_name);
+                const control_var_declaration_code = binding.path.toString();
                 eval(control_var_declaration_code);
+                binding.path.remove();
                 new_body.push(...wanderControlFlow());
                 path.replaceInline(new_body);
             }

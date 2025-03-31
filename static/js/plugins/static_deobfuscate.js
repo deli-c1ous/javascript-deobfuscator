@@ -25,16 +25,15 @@ function static_deobfuscate(ast) {
     const visitor = {
         // 字符串还原
         StringLiteral(path) {
-            let value = path.node.value;
-            if (!path.node.extra) {
-                path.node.extra = {
-                    rawValue: value,
-                };
+            const { value, extra } = path.node;
+            if (!extra) {
+                path.node.extra = { rawValue: value };
             }
             path.node.extra.raw = JSON.stringify(value);
         },
         TemplateLiteral(path) {
-            for (const element of path.node.quasis) {
+            const { quasis } = path.node;
+            for (const element of quasis) {
                 element.value.raw = element.value.cooked;
             }
         },
@@ -46,9 +45,9 @@ function static_deobfuscate(ast) {
         'BinaryExpression|UnaryExpression'(path) {
             const { confident, value } = path.evaluate();
             if (confident) {
-                const old_node = path.node;
+                const old_type = path.type;
                 path.replaceInline(types.valueToNode(value));
-                if (path.type === old_node.type) {
+                if (path.type === old_type) {
                     path.skip();
                 }
             }
@@ -141,7 +140,7 @@ function static_deobfuscate(ast) {
                 parentPath.replaceInline(expressions.map(types.expressionStatement));
             } else if (parentPath.isReturnStatement() || parentPath.isIfStatement()) {
                 parentPath.insertBefore(expressions.slice(0, -1).map(types.expressionStatement));
-                path.replaceInline(expressions[expressions.length - 1]);
+                path.replaceWith(expressions.at(-1));
             }
         },
         // 移除无效的表达式语句
@@ -151,10 +150,21 @@ function static_deobfuscate(ast) {
             }
         },
         // 块语句包装
-        'ForStatement|WhileStatement'(path) {
+        WhileStatement(path) {
             const { body } = path.node;
             if (!types.isBlockStatement(body)) {
                 path.node.body = types.blockStatement([body]);
+            }
+        },
+        ForStatement(path) {
+            const { init, body } = path.node;
+            if (!types.isBlockStatement(body)) {
+                path.node.body = types.blockStatement([body]);
+            }
+            if (init && types.isVariableDeclaration(init, { kind: 'var' }) && init.declarations.length > 1) {
+                const { declarations } = init;
+                const new_declarations = types.variableDeclaration('var', declarations.splice(0, declarations.length - 1))
+                path.insertBefore(new_declarations);
             }
         },
         // 方括号属性还原为点属性
@@ -172,6 +182,41 @@ function static_deobfuscate(ast) {
             const { key, computed } = path.node;
             if (computed && types.isLiteral(key)) {
                 path.node.computed = false;
+            }
+        },
+        Scope: {
+            exit(path) {
+                path.scope.crawl();
+            }
+        },
+        CallExpression(path) {
+            const { callee } = path.node;
+            const { parentPath } = path;
+            if (parentPath.isExpressionStatement() && types.isFunctionExpression(callee) && callee.body.body.length === 0) {
+                parentPath.remove();
+            }
+        },
+        VariableDeclaration(path) {
+            const { declarations, kind } = path.node;
+            if (declarations.length > 1) {
+                const new_declarations = declarations.splice(0, declarations.length - 1).map(decl => types.variableDeclaration(kind, [decl]));
+                path.insertBefore(new_declarations);
+            }
+        },
+        VariableDeclarator(path) {
+            const { parentPath } = path;
+            const { id, init } = path.node;
+            const binding = path.scope.getBinding(id.name);
+            const { referencePaths, constant, referenced } = binding;
+            if (constant) {
+                if (init) {
+                    if (types.isLiteral(init)) {
+                        referencePaths.forEach(ref => ref.replaceWith(init));
+                        path.remove();
+                    }
+                } else {
+                    referencePaths.forEach(ref => ref.replaceWith(types.identifier('undefined')));
+                }
             }
         }
     };

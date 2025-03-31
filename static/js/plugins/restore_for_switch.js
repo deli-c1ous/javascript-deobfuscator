@@ -45,16 +45,15 @@ function restoreForSwitch(ast) {
             if (body.body.length === 1 && types.isSwitchStatement(body.body[0])) {
                 const new_body = [];
                 control_var_name = test.name;
-                const var_declaration = init;
-                const declarators = var_declaration.declarations.filter(declarator => declarator.id.name !== control_var_name);
-                if (declarators.length > 0) {
-                    const new_var_declaration = types.variableDeclaration(var_declaration.kind, declarators);
-                    new_body.push(new_var_declaration);
+                if (init.declarations[0].id.name !== control_var_name) {
+                    new_body.push(init);
                 }
-                const control_var_value = path.scope.getBinding(control_var_name).path.node.init.value;
+                const binding = path.scope.getBinding(control_var_name);
+                const control_var_value = binding.path.node.init.value;
                 switch_cases = body.body[0].cases;
                 new_body.push(...wanderControlFlow(control_var_value));
                 path.replaceInline(new_body);
+                binding.path.remove();
             }
         }
     };

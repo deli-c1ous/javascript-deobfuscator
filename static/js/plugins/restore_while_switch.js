@@ -17,7 +17,10 @@ function restoreWhileSwitch(ast) {
                 const control_flow_index_array_name = switch_stmt.discriminant.object.name;
                 const control_flow_index_array_binding = path.scope.getBinding(control_flow_index_array_name);
                 const control_flow_index_array = eval(control_flow_index_array_binding.path.get('init').toString());
-                control_flow_index_array_binding.path.parentPath.remove();
+                const control_flow_var_name = switch_stmt.discriminant.property.argument.name;
+                const control_flow_var_binding = path.scope.getBinding(control_flow_var_name);
+                control_flow_index_array_binding.path.remove();
+                control_flow_var_binding.path.remove();
 
                 const new_body = [];
                 control_flow_index_array.forEach(index => {

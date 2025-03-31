@@ -1,49 +1,59 @@
-function restoreLogicalSequenceExpression(ast) {
+function restoreLogicalSequenceExpr(ast) {
     const visitor = {
         LogicalExpression(path) {
+            function transformANDLogicalExpr(logical_expr) {
+                const { left, right, operator } = logical_expr;
+                types.assertLogicalExpression(left);
+                const { left: left_left, right: left_right, operator: left_operator } = left;
+                if (left_operator === '&&') {
+                    types.assertLogicalExpression(left_left);
+                    const new_logical_expr1 = types.logicalExpression(operator, left_right, right);
+                    const new_logical_expr2 = types.logicalExpression(left_operator, left_left, new_logical_expr1);
+                    return transformANDLogicalExpr(new_logical_expr2);
+                } else {
+                    types.assertBinaryExpression(left_left);
+                    types.assertSequenceExpression(left_right);
+                    return logical_expr;
+                }
+            }
+
+            function transformORLogicalExpr(logical_expr) {
+                const { left, right, operator } = logical_expr;
+                types.assertLogicalExpression(left);
+                const { left: left_left, right: left_right, operator: left_operator } = left;
+                if (left_operator === '||') {
+                    types.assertLogicalExpression(left_left);
+                    const new_logical_expr1 = types.logicalExpression(operator, left_right, right);
+                    const new_logical_expr2 = types.logicalExpression(left_operator, left_left, new_logical_expr1);
+                    return transformORLogicalExpr(new_logical_expr2);
+                } else {
+                    types.assertBinaryExpression(left_left);
+                    types.assertSequenceExpression(left_right);
+                    return logical_expr;
+                }
+            }
+
             const { parentPath } = path;
-            const { left, right, operator } = path.node;
+            const { operator } = path.node;
             if (parentPath.isExpressionStatement()) {
                 if (operator === '&&') {
-                    let prev_right = right, prev_left = left, prev_operator = operator;
-                    while (prev_operator === '&&') {
-                        types.assertLogicalExpression(prev_left);
-                        const { left: now_left, right: now_right, operator: now_operator } = prev_left;
-                        if (now_operator === '||') {
-                            path.replaceInline(types.logicalExpression(prev_operator, prev_left, prev_right));
-                        } else {
-                            prev_right = types.logicalExpression(prev_operator, now_right, prev_right);
-                            prev_left = now_left;
-                        }
-                        prev_operator = now_operator;
-                    }
-                    const { left: new_left, right: new_right } = path.node;
-                    const { left: new_left_left, right: new_left_right } = new_left;
-                    const if_stmt = types.ifStatement(new_left_left, types.blockStatement([types.expressionStatement(new_right)]), types.blockStatement([types.expressionStatement(new_left_right)]));
+                    path.node = transformANDLogicalExpr(path.node);
+                    const { left, right } = path.node;
+                    const { left: left_left, right: left_right, } = left;
+                    const if_stmt = types.ifStatement(left_left, types.blockStatement([types.expressionStatement(right)]), types.blockStatement(left_right.expressions.slice(0, -1).map(types.expressionStatement)));
                     parentPath.replaceInline(if_stmt);
                 } else {
-                    let prev_right = right, prev_left = left, prev_operator = operator;
-                    while (prev_operator === '||') {
-                        types.assertLogicalExpression(prev_left);
-                        const { left: now_left, right: now_right, operator: now_operator } = prev_left;
-                        if (now_operator === '&&') {
-                            path.replaceInline(types.logicalExpression(prev_operator, prev_left, prev_right));
-                        } else {
-                            prev_right = types.logicalExpression(prev_operator, now_right, prev_right);
-                            prev_left = now_left;
-                        }
-                        prev_operator = now_operator;
-                    }
-                    const { left: new_left, right: new_right } = path.node;
-                    const { left: new_left_left, right: new_left_right } = new_left;
-                    const if_stmt = types.ifStatement(new_left_left, types.blockStatement([types.expressionStatement(new_left_right)]), types.blockStatement([types.expressionStatement(new_right)]));
+                    path.node = transformORLogicalExpr(path.node);
+                    const { left, right } = path.node;
+                    const { left: left_left, right: left_right } = left;
+                    const if_stmt = types.ifStatement(left_left, types.blockStatement(left_right.expressions.slice(0, -1).map(types.expressionStatement)), types.blockStatement([types.expressionStatement(right)]));
                     parentPath.replaceInline(if_stmt);
                 }
             }
         },
         SequenceExpression(path) {
-            const { expressions } = path.node;
             const { parentPath } = path;
+            const { expressions } = path.node;
             if (parentPath.isExpressionStatement()) {
                 parentPath.replaceWithMultiple(expressions.map(types.expressionStatement));
             }

@@ -112,7 +112,7 @@ processButton.addEventListener('click', () => {
             case 'logical-sequence-expression':
                 transform(ast => {
                     static_deobfuscate(ast);
-                    restoreLogicalSequenceExpression(ast);
+                    restoreLogicalSequenceExpr(ast);
                     static_deobfuscate(ast);
                     rename_var_func_param(ast, { hexadecimal_only: !renameAll });
                 });

@@ -3,23 +3,20 @@ function findReturnStringArrayFunc(ast) {
 
     const visitor = {
         FunctionDeclaration(path) {
-            const { body, params, id } = path.node;
+            const { body, id } = path.node;
             if (
-                params.length === 0 &&
                 body.body.length === 3 &&
-
                 types.isVariableDeclaration(body.body[0]) &&
-                body.body[0].declarations.length === 1 &&
-
+                types.isArrayExpression(body.body[0].declarations[0].init) &&
+                body.body[0].declarations[0].init.elements.length > 0 &&
+                body.body[0].declarations[0].init.elements.every(types.isStringLiteral) &&
                 types.isExpressionStatement(body.body[1]) &&
                 types.isAssignmentExpression(body.body[1].expression) &&
                 types.isIdentifier(body.body[1].expression.left, { name: id.name }) &&
                 types.isFunctionExpression(body.body[1].expression.right) &&
-                body.body[1].expression.right.params.length === 0 &&
                 body.body[1].expression.right.body.body.length === 1 &&
                 types.isReturnStatement(body.body[1].expression.right.body.body[0]) &&
                 types.isIdentifier(body.body[1].expression.right.body.body[0].argument, { name: body.body[0].declarations[0].id.name }) &&
-
                 types.isReturnStatement(body.body[2]) &&
                 types.isCallExpression(body.body[2].argument) &&
                 types.isIdentifier(body.body[2].argument.callee, { name: id.name })
@@ -41,41 +38,19 @@ function findDecryptStringFunc(ast, return_string_array_func_name) {
 
     const visitor = {
         FunctionDeclaration(path) {
-            const { body, params, id } = path.node;
+            const { body, id } = path.node;
             if (
-                params.length === 2 &&
                 body.body.length === 3 &&
-
                 types.isVariableDeclaration(body.body[0]) &&
-                body.body[0].declarations.length === 1 &&
                 types.isCallExpression(body.body[0].declarations[0].init) &&
                 types.isIdentifier(body.body[0].declarations[0].init.callee, { name: return_string_array_func_name }) &&
-
                 types.isExpressionStatement(body.body[1]) &&
                 types.isAssignmentExpression(body.body[1].expression) &&
                 types.isIdentifier(body.body[1].expression.left, { name: id.name }) &&
                 types.isFunctionExpression(body.body[1].expression.right) &&
-                body.body[1].expression.right.params.length === 2 &&
-                body.body[1].expression.right.body.body.length >= 3 &&
-                types.isExpressionStatement(body.body[1].expression.right.body.body[0]) &&
-                types.isAssignmentExpression(body.body[1].expression.right.body.body[0].expression) &&
-                types.isIdentifier(body.body[1].expression.right.body.body[0].expression.left, { name: body.body[1].expression.right.params[0].name }) &&
-                types.isBinaryExpression(body.body[1].expression.right.body.body[0].expression.right) &&
-                types.isIdentifier(body.body[1].expression.right.body.body[0].expression.right.left, { name: body.body[1].expression.right.params[0].name }) &&
-                types.isNumericLiteral(body.body[1].expression.right.body.body[0].expression.right.right) &&
-                types.isVariableDeclaration(body.body[1].expression.right.body.body[1]) &&
-                body.body[1].expression.right.body.body[1].declarations.length === 1 &&
-                types.isMemberExpression(body.body[1].expression.right.body.body[1].declarations[0].init) &&
-                types.isIdentifier(body.body[1].expression.right.body.body[1].declarations[0].init.object, { name: body.body[0].declarations[0].id.name }) &&
-                types.isIdentifier(body.body[1].expression.right.body.body[1].declarations[0].init.property, { name: body.body[1].expression.right.params[0].name }) &&
-                types.isReturnStatement(body.body[1].expression.right.body.body[body.body[1].expression.right.body.body.length - 1]) &&
-                types.isIdentifier(body.body[1].expression.right.body.body[body.body[1].expression.right.body.body.length - 1].argument, { name: body.body[1].expression.right.body.body[1].declarations[0].id.name }) &&
-
                 types.isReturnStatement(body.body[2]) &&
                 types.isCallExpression(body.body[2].argument) &&
-                types.isIdentifier(body.body[2].argument.callee, { name: id.name }) &&
-                types.isIdentifier(body.body[2].argument.arguments[0], { name: params[0].name }) &&
-                types.isIdentifier(body.body[2].argument.arguments[1], { name: params[1].name })
+                types.isIdentifier(body.body[2].argument.callee, { name: id.name })
             ) {
                 decrypt_string_func_names.push(id.name);
                 const code = generate(path.node, { compact: true }).code;
@@ -99,7 +74,6 @@ function findDecryptStringFuncProxy(ast, decrypt_string_func_names) {
             const { body } = proxied_function_path.node;
             if (
                 body.body.length === 1 &&
-
                 types.isReturnStatement(body.body[0]) &&
                 types.isCallExpression(body.body[0].argument) &&
                 types.isIdentifier(body.body[0].argument.callee)
@@ -133,7 +107,6 @@ function findDecryptStringFuncProxy(ast, decrypt_string_func_names) {
             const { id, body } = path.node;
             if (
                 body.body.length === 1 &&
-
                 types.isReturnStatement(body.body[0]) &&
                 types.isCallExpression(body.body[0].argument) &&
                 types.isIdentifier(body.body[0].argument.callee)
@@ -167,63 +140,25 @@ function findDecryptStringFuncProxy(ast, decrypt_string_func_names) {
 
 function findChangeStringArrayIIFE(ast, return_string_array_func_name) {
     const visitor = {
-        ExpressionStatement(path) {
-            const { expression } = path.node;
+        CallExpression(path) {
+            const { parentPath } = path;
+            const { callee, arguments } = path.node;
             if (
-                types.isCallExpression(expression) &&
-                expression.arguments.length === 2 &&
-                types.isIdentifier(expression.arguments[0], { name: return_string_array_func_name }) &&
-                types.isNumericLiteral(expression.arguments[1]) &&
-                types.isFunctionExpression(expression.callee) &&
-                expression.callee.body.body.length === 2 &&
-                types.isVariableDeclaration(expression.callee.body.body[0]) &&
-                expression.callee.body.body[0].declarations.length === 1 &&
-                types.isCallExpression(expression.callee.body.body[0].declarations[0].init) &&
-                types.isIdentifier(expression.callee.body.body[0].declarations[0].init.callee, { name: expression.callee.params[0].name }) &&
-                types.isWhileStatement(expression.callee.body.body[1]) &&
-                types.isBooleanLiteral(expression.callee.body.body[1].test, { value: true }) &&
-                expression.callee.body.body[1].body.body.length === 1 &&
-                types.isTryStatement(expression.callee.body.body[1].body.body[0]) &&
-                expression.callee.body.body[1].body.body[0].block.body.length === 2 &&
-                types.isVariableDeclaration(expression.callee.body.body[1].body.body[0].block.body[0]) &&
-                expression.callee.body.body[1].body.body[0].block.body[0].declarations.length === 1 &&
-                types.isBinaryExpression(expression.callee.body.body[1].body.body[0].block.body[0].declarations[0].init) &&
-                types.isIfStatement(expression.callee.body.body[1].body.body[0].block.body[1]) &&
-                types.isBinaryExpression(expression.callee.body.body[1].body.body[0].block.body[1].test) &&
-                types.isIdentifier(expression.callee.body.body[1].body.body[0].block.body[1].test.left, { name: expression.callee.body.body[1].body.body[0].block.body[0].declarations[0].id.name }) &&
-                types.isIdentifier(expression.callee.body.body[1].body.body[0].block.body[1].test.right, { name: expression.callee.params[1].name }) &&
-                expression.callee.body.body[1].body.body[0].block.body[1].consequent.body.length === 1 &&
-                types.isBreakStatement(expression.callee.body.body[1].body.body[0].block.body[1].consequent.body[0]) &&
-                expression.callee.body.body[1].body.body[0].block.body[1].alternate.body.length === 1 &&
-                types.isExpressionStatement(expression.callee.body.body[1].body.body[0].block.body[1].alternate.body[0]) &&
-                types.isCallExpression(expression.callee.body.body[1].body.body[0].block.body[1].alternate.body[0].expression) &&
-                types.isMemberExpression(expression.callee.body.body[1].body.body[0].block.body[1].alternate.body[0].expression.callee) &&
-                types.isIdentifier(expression.callee.body.body[1].body.body[0].block.body[1].alternate.body[0].expression.callee.object, { name: expression.callee.body.body[0].declarations[0].id.name }) &&
-                types.isIdentifier(expression.callee.body.body[1].body.body[0].block.body[1].alternate.body[0].expression.callee.property, { name: 'push' }) &&
-                expression.callee.body.body[1].body.body[0].block.body[1].alternate.body[0].expression.arguments.length === 1 &&
-                types.isCallExpression(expression.callee.body.body[1].body.body[0].block.body[1].alternate.body[0].expression.arguments[0]) &&
-                types.isMemberExpression(expression.callee.body.body[1].body.body[0].block.body[1].alternate.body[0].expression.arguments[0].callee) &&
-                types.isIdentifier(expression.callee.body.body[1].body.body[0].block.body[1].alternate.body[0].expression.arguments[0].callee.object, { name: expression.callee.body.body[0].declarations[0].id.name }) &&
-                types.isIdentifier(expression.callee.body.body[1].body.body[0].block.body[1].alternate.body[0].expression.arguments[0].callee.property, { name: 'shift' }) &&
-                expression.callee.body.body[1].body.body[0].handler.param &&
-                expression.callee.body.body[1].body.body[0].handler.body.body.length === 1 &&
-                types.isExpressionStatement(expression.callee.body.body[1].body.body[0].handler.body.body[0]) &&
-                types.isCallExpression(expression.callee.body.body[1].body.body[0].handler.body.body[0].expression) &&
-                types.isMemberExpression(expression.callee.body.body[1].body.body[0].handler.body.body[0].expression.callee) &&
-                types.isIdentifier(expression.callee.body.body[1].body.body[0].handler.body.body[0].expression.callee.object, { name: expression.callee.body.body[0].declarations[0].id.name }) &&
-                types.isIdentifier(expression.callee.body.body[1].body.body[0].handler.body.body[0].expression.callee.property, { name: 'push' }) &&
-                expression.callee.body.body[1].body.body[0].handler.body.body[0].expression.arguments.length === 1 &&
-                types.isCallExpression(expression.callee.body.body[1].body.body[0].handler.body.body[0].expression.arguments[0]) &&
-                types.isMemberExpression(expression.callee.body.body[1].body.body[0].handler.body.body[0].expression.arguments[0].callee) &&
-                types.isIdentifier(expression.callee.body.body[1].body.body[0].handler.body.body[0].expression.arguments[0].callee.object, { name: expression.callee.body.body[0].declarations[0].id.name }) &&
-                types.isIdentifier(expression.callee.body.body[1].body.body[0].handler.body.body[0].expression.arguments[0].callee.property, { name: 'shift' })
+                arguments.length === 2 &&
+                types.isIdentifier(arguments[0], { name: return_string_array_func_name }) &&
+                types.isNumericLiteral(arguments[1]) &&
+                types.isFunctionExpression(callee) &&
+                callee.body.body.length === 2 &&
+                types.isVariableDeclaration(callee.body.body[0]) &&
+                types.isWhileStatement(callee.body.body[1]) &&
+                parentPath.isExpressionStatement()
             ) {
-                const code = generate(path.node, { compact: true }).code;
+                const code = generate(parentPath.node, { compact: true }).code;
                 (0, eval)(code);
-                path.remove();
+                parentPath.remove();
             }
         }
-    }
+    };
     traverse(ast, visitor);
 }
 
@@ -241,7 +176,36 @@ function restoreCallExpression(ast, decrypt_string_func_aliases) {
     traverse(ast, visitor);
 }
 
-function findDispatcherObject(ast) {
+function restoreObjDeclaration(ast) {
+    const visitor = {
+        VariableDeclarator(path) {
+            const { id, init } = path.node;
+            if (types.isObjectExpression(init) && init.properties.length === 0) {
+                const binding = path.scope.getBinding(id.name);
+                const { constant, referenced, referencePaths } = binding;
+                if (
+                    constant &&
+                    referenced &&
+                    referencePaths.length >= 2 &&
+                    referencePaths.slice(0, -1).every(path => path.key === 'object' && path.parentPath.isMemberExpression() && path.parentPath.parentPath.isAssignmentExpression({ operator: '=' }) && path.parentPath.parentPath.parentPath.isExpressionStatement())
+                ) {
+                    const properties = binding.referencePaths.slice(0, -1).map(path => {
+                        const property_name = path.getSibling('property').node.name;
+                        const property_value = path.parentPath.parentPath.node.right;
+                        return types.objectProperty(types.stringLiteral(property_name), property_value);
+                    })
+                    const obj_expr = types.objectExpression(properties);
+                    referencePaths.at(-1).replaceInline(obj_expr);
+                    referencePaths.slice(0, -1).forEach(path => path.parentPath.parentPath.parentPath.remove());
+                    path.remove();
+                }
+            }
+        }
+    };
+    traverse(ast, visitor);
+}
+
+function findDispatcherObj(ast) {
     let dispatcher_object_names = [], dispatcher_object_paths = [];
 
     const visitor = {
@@ -319,8 +283,6 @@ function restoreMemberExpression(ast, dispatcher_object_names, dispatcher_object
 }
 
 function removeSelfDefending(ast) {
-    const names_to_remove = [];
-
     const visitor = {
         VariableDeclarator(path) {
             const { id, init } = path.node;
@@ -329,42 +291,30 @@ function removeSelfDefending(ast) {
                 types.isFunctionExpression(init.callee) &&
                 init.callee.body.body.length === 2 &&
                 types.isVariableDeclaration(init.callee.body.body[0]) &&
-                init.callee.body.body[0].declarations.length === 1 &&
                 types.isBooleanLiteral(init.callee.body.body[0].declarations[0].init, { value: true }) &&
                 types.isReturnStatement(init.callee.body.body[1]) &&
                 types.isFunctionExpression(init.callee.body.body[1].argument)
-                ||
-                types.isCallExpression(init) &&
-                names_to_remove.includes(init.callee.name) &&
-                init.arguments.length === 2 &&
-                types.isThisExpression(init.arguments[0]) &&
-                types.isFunctionExpression(init.arguments[1])
             ) {
-                names_to_remove.push(id.name);
-                path.remove();
+                const binding = path.scope.getBinding(id.name);
+                const ref = binding.referencePaths[0];
+                types.assertCallExpression(ref.parent);
+                if (ref.parentPath.parentPath.isVariableDeclarator()) {
+                    const binding1 = path.scope.getBinding(ref.parentPath.parent.id.name);
+                    const ref1 = binding1.referencePaths.at(-1);
+                    types.assertCallExpression(ref1.parent);
+                    types.assertExpressionStatement(ref1.parentPath.parent);
+                    ref1.parentPath.parentPath.remove();
+                    ref.parentPath.parentPath.remove();
+                    path.remove();
+                } else if (ref.parentPath.parentPath.isCallExpression()) {
+                    types.assertExpressionStatement(ref.parentPath.parentPath.parent);
+                    ref.parentPath.parentPath.parentPath.remove();
+                    path.remove();
+                } else {
+                    console.error(`Unsupported self-defending code: ${ref.parentPath.parentPath.type}`);
+                }
             }
         },
-        CallExpression(path) {
-            const { callee } = path.node;
-            if (
-                types.isIdentifier(callee) &&
-                names_to_remove.includes(callee.name)
-                ||
-                types.isFunctionExpression(callee) &&
-                callee.params.length === 0 &&
-                callee.body.body.length === 1 &&
-                types.isExpressionStatement(callee.body.body[0]) &&
-                types.isCallExpression(callee.body.body[0].expression) &&
-                types.isCallExpression(callee.body.body[0].expression.callee) &&
-                types.isIdentifier(callee.body.body[0].expression.callee.callee) &&
-                names_to_remove.includes(callee.body.body[0].expression.callee.callee.name) &&
-                callee.body.body[0].expression.callee.arguments.length === 2 &&
-                types.isThisExpression(callee.body.body[0].expression.callee.arguments[0]) &&
-                types.isFunctionExpression(callee.body.body[0].expression.callee.arguments[1])
-            ) {
-                path.remove();
-            }
-        }
     };
     traverse(ast, visitor);
 
@@ -405,22 +355,22 @@ function removeSelfDefending(ast) {
 
     const visitor3 = {
         CallExpression(path) {
-            const { callee } = path.node;
+            const { callee, arguments } = path.node;
             if (
-                types.isFunctionExpression(callee) &&
-                callee.body.body.length === 3 &&
-                types.isVariableDeclaration(callee.body.body[0]) &&
-                types.isTryStatement(callee.body.body[1]) &&
-                types.isExpressionStatement(callee.body.body[2]) &&
-                types.isCallExpression(callee.body.body[2].expression) &&
-                types.isMemberExpression(callee.body.body[2].expression.callee) &&
-                types.isIdentifier(callee.body.body[2].expression.callee.property, { name: 'setInterval' }) &&
-                callee.body.body[2].expression.arguments.length === 2 &&
-                types.isIdentifier(callee.body.body[2].expression.arguments[0]) &&
-                names_to_remove2.includes(callee.body.body[2].expression.arguments[0].name) &&
-                types.isNumericLiteral(callee.body.body[2].expression.arguments[1])
+                types.isMemberExpression(callee) &&
+                types.isIdentifier(callee.object) &&
+                types.isIdentifier(callee.property, { name: 'setInterval' }) &&
+                arguments.length === 2 &&
+                types.isIdentifier(arguments[0]) &&
+                names_to_remove2.includes(arguments[0].name) &&
+                types.isNumericLiteral(arguments[1]) &&
+                path.parentPath.isExpressionStatement() &&
+                path.parentPath.parentPath.isBlockStatement() &&
+                path.parentPath.parentPath.parentPath.isFunctionExpression() &&
+                path.parentPath.parentPath.parentPath.parentPath.isCallExpression() &&
+                path.parentPath.parentPath.parentPath.parentPath.parentPath.isExpressionStatement()
             ) {
-                path.remove();
+                path.parentPath.parentPath.parentPath.parentPath.parentPath.remove();
             }
         }
     };
@@ -446,7 +396,10 @@ function restoreWhileSwitch(ast) {
                 const control_flow_index_array_name = switch_stmt.discriminant.object.name;
                 const control_flow_index_array_binding = path.scope.getBinding(control_flow_index_array_name);
                 const control_flow_index_array = eval(control_flow_index_array_binding.path.get('init').toString());
-                control_flow_index_array_binding.path.parentPath.remove();
+                const control_flow_var_name = switch_stmt.discriminant.property.argument.name;
+                const control_flow_var_binding = path.scope.getBinding(control_flow_var_name);
+                control_flow_index_array_binding.path.remove();
+                control_flow_var_binding.path.remove();
 
                 const new_body = [];
                 control_flow_index_array.forEach(index => {
@@ -467,11 +420,13 @@ function restoreLogicalAndConditionalExpression(ast) {
             const { parentPath } = path;
             const { left, right, operator } = path.node;
             if (parentPath.isExpressionStatement()) {
-                const new_right = types.expressionStatement(right);
-                const consequent = types.blockStatement([new_right]);
-                const alternate = types.blockStatement([]);
-                const if_statement = operator === '&&' ? types.ifStatement(left, consequent, alternate) : types.ifStatement(left, alternate, consequent);
-                parentPath.replaceInline(if_statement);
+                if (operator === '&&') {
+                    const if_stmt = types.ifStatement(left, types.blockStatement([types.expressionStatement(right)]), null);
+                    parentPath.replaceInline(if_stmt);
+                } else {
+                    const if_stmt = types.ifStatement(types.unaryExpression('!', left, true), types.blockStatement([types.expressionStatement(right)]), null);
+                    parentPath.replaceInline(if_stmt);
+                }
             }
         },
         SequenceExpression(path) {
@@ -503,10 +458,11 @@ function obfuscator_io_deobfuscate(ast) {
     const { decrypt_string_func_names } = findDecryptStringFunc(ast, return_string_array_func_name);
     const { decrypt_string_func_proxy_names } = findDecryptStringFuncProxy(ast, decrypt_string_func_names);
     findChangeStringArrayIIFE(ast, return_string_array_func_name);
-    const { dispatcher_object_names, dispatcher_object_paths } = findDispatcherObject(ast);
     const decrypt_string_func_aliases = [...decrypt_string_func_names, ...decrypt_string_func_proxy_names];
     restoreCallExpression(ast, decrypt_string_func_aliases);
     static_deobfuscate(ast);
+    restoreObjDeclaration(ast);
+    const { dispatcher_object_names, dispatcher_object_paths } = findDispatcherObj(ast);
     restoreMemberExpression(ast, dispatcher_object_names, dispatcher_object_paths);
     static_deobfuscate(ast);
     removeSelfDefending(ast);
