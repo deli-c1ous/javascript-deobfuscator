@@ -1,3 +1,4 @@
+
 function findReturnStringArrayFunc(ast) {
     let return_string_array_func_name;
 
@@ -299,7 +300,7 @@ function removeSelfDefending(ast) {
                 const ref = binding.referencePaths[0];
                 types.assertCallExpression(ref.parent);
                 if (ref.parentPath.parentPath.isVariableDeclarator()) {
-                    const binding1 = path.scope.getBinding(ref.parentPath.parent.id.name);
+                    const binding1 = ref.scope.getBinding(ref.parentPath.parent.id.name);
                     const ref1 = binding1.referencePaths.at(-1);
                     types.assertCallExpression(ref1.parent);
                     types.assertExpressionStatement(ref1.parentPath.parent);

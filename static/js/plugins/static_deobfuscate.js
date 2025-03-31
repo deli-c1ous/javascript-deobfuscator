@@ -126,8 +126,8 @@ function static_deobfuscate(ast) {
                         path.replaceInline(types.expressionStatement(path.node.test));
                     } else {
                         const new_test = types.unaryExpression("!", path.node.test, true);
-                        const new_if_statement = types.ifStatement(new_test, path.node.alternate, null);
-                        path.replaceInline(new_if_statement);
+                        const new_if_stmt = types.ifStatement(new_test, path.node.alternate, null);
+                        path.replaceInline(new_if_stmt);
                     }
                 }
             }
@@ -184,11 +184,6 @@ function static_deobfuscate(ast) {
                 path.node.computed = false;
             }
         },
-        Scope: {
-            exit(path) {
-                path.scope.crawl();
-            }
-        },
         CallExpression(path) {
             const { callee } = path.node;
             const { parentPath } = path;
@@ -204,10 +199,10 @@ function static_deobfuscate(ast) {
             }
         },
         VariableDeclarator(path) {
-            const { parentPath } = path;
             const { id, init } = path.node;
+            path.scope.crawl()
             const binding = path.scope.getBinding(id.name);
-            const { referencePaths, constant, referenced } = binding;
+            const { referencePaths, constant } = binding;
             if (constant) {
                 if (init) {
                     if (types.isLiteral(init)) {
