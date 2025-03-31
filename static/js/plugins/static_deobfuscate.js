@@ -192,15 +192,16 @@ function static_deobfuscate(ast) {
             }
         },
         VariableDeclaration(path) {
+            const { parentPath } = path;
             const { declarations, kind } = path.node;
-            if (declarations.length > 1) {
+            if (!parentPath.isForStatement() && declarations.length > 1) {
                 const new_declarations = declarations.splice(0, declarations.length - 1).map(decl => types.variableDeclaration(kind, [decl]));
                 path.insertBefore(new_declarations);
             }
         },
         VariableDeclarator(path) {
-            const { id, init } = path.node;
             path.scope.crawl()
+            const { id, init } = path.node;
             const binding = path.scope.getBinding(id.name);
             const { referencePaths, constant } = binding;
             if (constant) {
@@ -211,6 +212,7 @@ function static_deobfuscate(ast) {
                     }
                 } else {
                     referencePaths.forEach(ref => ref.replaceWith(types.identifier('undefined')));
+                    path.remove();
                 }
             }
         }
